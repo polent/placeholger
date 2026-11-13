@@ -16,10 +16,18 @@ if ! command -v lftp >/dev/null 2>&1; then
   exit 1
 fi
 
-set -a
-# shellcheck disable=SC1091
-source .env
-set +a
+while IFS= read -r line || [ -n "$line" ]; do
+  line="${line%$'\r'}"
+  case "$line" in
+    ''|\#*) continue ;;
+  esac
+  key="${line%%=*}"
+  val="${line#*=}"
+  if [[ "$val" =~ ^\"(.*)\"$ ]] || [[ "$val" =~ ^\'(.*)\'$ ]]; then
+    val="${BASH_REMATCH[1]}"
+  fi
+  export "$key=$val"
+done < .env
 
 : "${SFTP_HOST:?Missing SFTP_HOST in .env}"
 : "${SFTP_USER:?Missing SFTP_USER in .env}"

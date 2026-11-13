@@ -13,8 +13,10 @@ echo "==> [2/4] Copying PHP, Apache .htaccess, JS SDK, SEO, and Agentic files...
 cp src/public/.htaccess dist/.htaccess
 cp src/public/index.php dist/index.php
 cp src/public/api.php dist/api.php
-cp src/public/placeholger.js dist/placeholger.js
-cp src/public/assets/app.js dist/assets/app.js
+node scripts/minify-js.mjs src/public/placeholger.js dist/placeholger.js
+node scripts/minify-js.mjs src/public/assets/app.js dist/assets/app.js
+node --check dist/placeholger.js
+node --check dist/assets/app.js
 cp src/public/robots.txt dist/robots.txt
 cp src/public/sitemap.xml dist/sitemap.xml
 cp src/public/llms.txt dist/llms.txt

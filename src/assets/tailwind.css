@@ -19,6 +19,7 @@
   --secondary-color: #c7c6c8;
   --on-primary-color: #1a1c1d;
   --error-color: #ffb4ab;
+  --success-color: #34d399;
 }
 
 html.light {
@@ -31,10 +32,11 @@ html.light {
   --surface-highest: #cbd5e1;
   --text-primary: #09090b;
   --text-body: #1e293b;
-  --text-muted: #64748b;
+  --text-muted: #475569;
   --secondary-color: #475569;
   --on-primary-color: #ffffff;
   --error-color: #dc2626;
+  --success-color: #047857;
 }
 
 html, body {
@@ -117,6 +119,8 @@ a {
 .h-3\.5 { height: 0.875rem; }
 .w-6 { width: 1.5rem; }
 .h-6 { height: 1.5rem; }
+.w-7 { width: 1.75rem; }
+.h-7 { height: 1.75rem; }
 .w-8 { width: 2rem; }
 .h-4 { height: 1rem; }
 .h-14 { height: 3.5rem; }
@@ -213,7 +217,7 @@ a {
 .text-on-surface-variant { color: var(--text-muted); }
 .text-on-surface-variant\/80 { color: color-mix(in srgb, var(--text-muted) 80%, transparent); }
 .text-secondary { color: var(--secondary-color); }
-.text-emerald-400 { color: #34d399; }
+.text-emerald-400 { color: var(--success-color, #34d399); }
 .text-error { color: var(--error-color); }
 
 /* Borders & Rounding */

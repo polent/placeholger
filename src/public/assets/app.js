@@ -31,8 +31,8 @@
     var btnSys = document.getElementById('themeBtnSystem');
     if (!btnLight || !btnDark || !btnSys) return;
 
-    var inactiveClass = 'p-1 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center';
-    var activeClass = 'p-1 rounded bg-surface-container-highest text-primary font-medium shadow-sm transition-colors flex items-center justify-center';
+    var inactiveClass = 'w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center';
+    var activeClass = 'w-7 h-7 rounded bg-surface-container-highest text-primary font-medium shadow-sm transition-colors flex items-center justify-center';
 
     btnLight.className = pref === 'light' ? activeClass : inactiveClass;
     btnDark.className = pref === 'dark' ? activeClass : inactiveClass;
@@ -259,25 +259,25 @@
 
     document.getElementById('rangeWidth').value = Math.min(s.w, 1920);
     document.getElementById('rangeHeight').value = Math.min(s.h, 1080);
-    document.getElementById('sliderWidthVal').innerText = s.w + 'px';
-    document.getElementById('sliderHeightVal').innerText = s.h + 'px';
+    document.getElementById('sliderWidthVal').textContent = s.w + 'px';
+    document.getElementById('sliderHeightVal').textContent = s.h + 'px';
 
     var pathText = buildPathQuery(s);
     var fullUrl = BASE_URL + '/' + pathText;
     var localHref = '/' + pathText;
 
-    document.getElementById('urlPath').innerText = pathText;
+    document.getElementById('urlPath').textContent = pathText;
     var extBtn = document.getElementById('externalLinkBtn');
     if (extBtn) extBtn.href = localHref;
 
     var quickEmbed = document.getElementById('quickEmbedCode');
     if (quickEmbed) {
-      quickEmbed.innerText = '<img src="' + fullUrl + '" width="' + s.w + '" height="' + s.h + '" alt="' + s.text + '" />';
+      quickEmbed.textContent = '<img src="' + fullUrl + '" width="' + s.w + '" height="' + s.h + '" alt="' + s.text + '" />';
     }
 
-    document.getElementById('previewHudDim').innerText = s.w + ' × ' + s.h;
+    document.getElementById('previewHudDim').textContent = s.w + ' × ' + s.h;
     var ratioVal = (s.w / s.h).toFixed(2);
-    document.getElementById('previewRatioBadge').innerText = ratioVal + ':1 (' + s.w + ':' + s.h + ')';
+    document.getElementById('previewRatioBadge').textContent = ratioVal + ':1 (' + s.w + ':' + s.h + ')';
 
     // Render authentic SVG inside the Stage Preview using Placeholger SDK
     var svgMarkup = window.Placeholger ? window.Placeholger.svg(s) : '';
@@ -293,8 +293,8 @@
     }
 
     var byteSize = svgMarkup ? new Blob([svgMarkup]).size : 280;
-    document.getElementById('previewBytesBadge').innerText = byteSize.toLocaleString() + ' bytes';
-    document.getElementById('calculatedKB').innerText = byteSize + ' B';
+    document.getElementById('previewBytesBadge').textContent = byteSize.toLocaleString() + ' bytes';
+    document.getElementById('calculatedKB').textContent = byteSize + ' B';
 
     // Aspect ratio adjustment for preview frame
     var wrapper = document.getElementById('previewCanvasWrapper');
@@ -324,7 +324,7 @@
 
   window.copySnippet = function (elementId, btnElement) {
     var el = document.getElementById(elementId);
-    if (el) window.copyToClipboard(el.innerText, btnElement);
+    if (el) window.copyToClipboard(el.textContent, btnElement);
   };
 
   window.copyMarkup = function (format, btnElement) {

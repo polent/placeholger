@@ -68,8 +68,20 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" /></noscript>
+  <script>!function(){try{var t=localStorage.getItem('placeholger_theme')||'system',e=t==='system'?(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.classList.add(e);document.documentElement.classList.remove(e==='dark'?'light':'dark')}catch(e){}}();</script>
+  <?php
+  $inlineCssPath = __DIR__ . '/../public/assets/app.css';
+  if (!is_file($inlineCssPath)) {
+      $inlineCssPath = __DIR__ . '/../assets/app.css';
+  }
+  $inlineCss = is_file($inlineCssPath) ? trim(file_get_contents($inlineCssPath)) : '';
+  if ($inlineCss !== ''): ?>
+  <style><?= $inlineCss ?></style>
+  <?php else: ?>
   <link rel="stylesheet" href="/assets/app.css" />
+  <?php endif; ?>
 </head>
 <body class="bg-background text-on-surface font-body-md antialiased selection:bg-surface-container-highest selection:text-primary min-h-screen flex flex-col justify-between">
 
@@ -99,14 +111,14 @@
 
       <div class="flex items-center gap-space-sm shrink-0">
         <!-- Theme Mode Segmented Control -->
-        <div aria-label="Theme mode switcher" class="flex items-center p-0.5 rounded bg-surface-container border border-surface-container-highest/60" id="themeSegmentedControl" role="group">
-          <button aria-label="Light mode" class="p-1 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnLight" onclick="setTheme('light')" title="Light theme" type="button">
+        <div aria-label="Theme mode switcher" class="flex items-center gap-0.5 p-0.5 rounded bg-surface-container border border-surface-container-highest/60" id="themeSegmentedControl" role="group">
+          <button aria-label="Light mode" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnLight" onclick="setTheme('light')" title="Light theme" type="button">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
           </button>
-          <button aria-label="Follow system theme" class="p-1 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnSystem" onclick="setTheme('system')" title="System preference" type="button">
+          <button aria-label="Follow system theme" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnSystem" onclick="setTheme('system')" title="System preference" type="button">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
           </button>
-          <button aria-label="Dark mode" class="p-1 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnDark" onclick="setTheme('dark')" title="Dark theme" type="button">
+          <button aria-label="Dark mode" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnDark" onclick="setTheme('dark')" title="Dark theme" type="button">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           </button>
         </div>
@@ -179,7 +191,7 @@
                 <span class="font-code-md text-code-md text-primary font-medium">01 // Configurator</span>
                 <span class="text-on-surface-variant font-label-sm text-label-sm">Dynamic Vector Specs</span>
               </div>
-              <button data-agent-action="reset-defaults" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1" onclick="resetDefaults()" type="button">
+              <button data-agent-action="reset-defaults" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 py-1 px-1.5 rounded" onclick="resetDefaults()" type="button">
                 <span>↺ Reset</span>
               </button>
             </div>
@@ -265,7 +277,7 @@
                 <button class="text-on-surface-variant hover:text-primary text-xs px-1.5 py-0.5 rounded transition-colors hidden" id="clearTextBtn" onclick="clearCustomText()" type="button">Clear</button>
               </div>
               <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                <span class="font-label-sm text-label-sm text-on-surface-variant/80">Quick Samples:</span>
+                <span class="font-label-sm text-label-sm text-on-surface-variant">Quick Samples:</span>
                 <button class="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('PLACEHOLGER')" type="button">PLACEHOLGER</button>
                 <button class="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Hero Banner')" type="button">Hero Banner</button>
                 <button class="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Product Thumbnail')" type="button">Product Thumbnail</button>
@@ -699,7 +711,7 @@ curl -fsSL -o public/js/placeholger.js https://placeholger.hellinger.wtf/placeho
     </div>
   </nav>
 
-  <script src="/placeholger.js"></script>
-  <script src="/assets/app.js"></script>
+  <script defer src="/placeholger.js"></script>
+  <script defer src="/assets/app.js"></script>
 </body>
 </html>
