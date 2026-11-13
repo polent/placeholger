@@ -32,16 +32,16 @@ npm test
 ## 4. SFTP Deployment (`SFTP_*` variables only)
 
 ### Option A: Automated GitHub Actions CI/CD (`.github/workflows/deploy.yml`)
-- Pushing to `main` automatically executes `npm run build` and `npm test`, then mirrors `./dist/` via SFTP.
+- Pushing to `main` automatically executes `npm run build` and `npm test`, then mirrors `./dist/` via SFTP (`lftp`).
 - Required GitHub Repository Secrets:
   - `SFTP_HOST`
   - `SFTP_PORT` (optional, defaults to `22`)
   - `SFTP_USER`
-  - `SFTP_REMOTE_DIR`
-  - `SFTP_SSH_KEY` **or** `SFTP_PASSWORD`
+  - `SFTP_PASSWORD`
+  - `SFTP_REMOTE_DIR` (optional, defaults to `/`)
 
-### Option B: Local CLI SFTP Deployment (`scripts/deploy-sftp.sh`)
-1. Copy `.env.example` to `.env` and fill in `SFTP_HOST`, `SFTP_PORT`, `SFTP_USER`, `SFTP_REMOTE_DIR`, and `SFTP_SSH_KEY` (or `SFTP_PASSWORD`).
+### Option B: Local CLI SFTP Deployment (`scripts/deploy-sftp.sh`, requires `lftp`)
+1. Copy `.env.example` to `.env` and fill in `SFTP_HOST`, `SFTP_PORT`, `SFTP_USER`, `SFTP_PASSWORD`, and `SFTP_REMOTE_DIR`.
 2. Run:
    ```bash
    npm run deploy

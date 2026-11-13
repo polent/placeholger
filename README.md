@@ -45,23 +45,22 @@ npm test
 All deployments use **SFTP** (`SFTP_*` variables only).
 
 ### Option 1: Automated GitHub Actions CI/CD (`.github/workflows/deploy.yml`)
-Every push to `main` runs the full PHP + E2E test suite and automatically mirrors `./dist/` via SFTP.
+Every push to `main` runs the full PHP + E2E test suite and automatically mirrors `./dist/` via SFTP (`lftp`).
 Configure these **GitHub Repository Secrets** (`Settings -> Secrets and variables -> Actions`):
 - `SFTP_HOST` (e.g., `placeholger.hellinger.wtf`)
 - `SFTP_PORT` (optional, defaults to `22`)
 - `SFTP_USER` (SFTP username)
-- `SFTP_REMOTE_DIR` (target web root directory on the server, e.g., `/var/www/placeholger`)
-- `SFTP_SSH_KEY` (SSH private key) **or** `SFTP_PASSWORD` (SFTP password)
+- `SFTP_PASSWORD` (SFTP password)
+- `SFTP_REMOTE_DIR` (optional, defaults to `/`, e.g., `/var/www/placeholger`)
 
-### Option 2: Local CLI SFTP Deployment (`npm run deploy`)
+### Option 2: Local CLI SFTP Deployment (`npm run deploy`, requires `lftp`)
 1. Copy `.env.example` to `.env` and fill in your `SFTP_*` variables:
    ```ini
    SFTP_HOST=placeholger.hellinger.wtf
    SFTP_PORT=22
    SFTP_USER=your_sftp_username
-   SFTP_REMOTE_DIR=/var/www/placeholger
-   SFTP_SSH_KEY=~/.ssh/id_ed25519
-   SFTP_PASSWORD=
+   SFTP_PASSWORD=your_sftp_password
+   SFTP_REMOTE_DIR=/
    ```
 2. Run:
    ```bash
