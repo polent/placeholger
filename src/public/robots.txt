@@ -1,0 +1,33 @@
+# placeholger.hellinger.wtf — Crawler & Indexing Policy
+# Strategy:
+# 1. Index ONLY the canonical landing page (/), documentation, and AI discovery manifests.
+# 2. Prevent search engines from crawling or indexing infinite dynamic placeholder image URLs
+#    (additionally enforced via HTTP Header `X-Robots-Tag: noindex, noimageindex` on all SVG responses).
+
+User-agent: *
+Allow: /$
+Allow: /index.php$
+Allow: /placeholger.js
+Allow: /assets/
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /openapi.json
+Allow: /.well-known/
+
+# Disallow direct API & dynamic dimension routes to protect crawl budget
+Disallow: /api.php
+Disallow: /*?text=
+Disallow: /*?w=
+Disallow: /*&text=
+Disallow: /0*
+Disallow: /1*
+Disallow: /2*
+Disallow: /3*
+Disallow: /4*
+Disallow: /5*
+Disallow: /6*
+Disallow: /7*
+Disallow: /8*
+Disallow: /9*
+
+Sitemap: https://placeholger.hellinger.wtf/sitemap.xml

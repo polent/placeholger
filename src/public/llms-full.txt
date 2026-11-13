@@ -1,0 +1,44 @@
+# placeholger.hellinger.wtf — Complete Technical & Agentic Reference
+
+## 1. Service Overview
+`placeholger.hellinger.wtf` is a zero-disk, deterministic SVG wireframe placeholder generator built for developers, UI prototyping, automated tests, and AI coding assistants.
+
+Every generated wireframe replicates the classic architectural placeholder aesthetic:
+- Solid background fill (`#9E9EA0` by default).
+- Four diagonal corner-to-center crosshair lines with a clean central gap so lines never clash with the label text.
+- Centered uppercase typography (`PLACEHOLGER` by default, or any custom `?text=...` label) with an optional `{width} × {height}` subtitle (`?dims=1`).
+
+## 2. HTTP Endpoints & URL Routing
+
+### Route 1: Dimensions, Custom Colors & Text
+`GET https://placeholger.hellinger.wtf/{w}/{h}/{bg}/{fg}?text={label}&dims={0|1}`
+- Example: `https://placeholger.hellinger.wtf/800/450/18181b/22c55e?text=Terminal+Preview&dims=1`
+
+### Route 2: Dimensions Only (Default Wireframe Gray)
+`GET https://placeholger.hellinger.wtf/{w}/{h}?text={label}`
+- Example: `https://placeholger.hellinger.wtf/600/400?text=Product+Card`
+
+### Route 3: Equilateral Square Shortcut
+`GET https://placeholger.hellinger.wtf/{size}/{bg?}/{fg?}?text={label}`
+- Example: `https://placeholger.hellinger.wtf/512/1e3a8a/93c5fd?text=Avatar`
+
+### Route 4: Query-Parameter Endpoint
+`GET https://placeholger.hellinger.wtf/api.php?w=600&h=400&bg=9e9ea0&fg=ffffff&text=Custom&dims=1`
+
+## 3. HTTP Response Contract & Headers
+- **Success Status**: `200 OK` (or `304 Not Modified` when `If-None-Match` matches the deterministic `ETag`).
+- **Error Status**: `400 Bad Request` when `w` or `h` is `< 1`, `> 2048`, or non-integer.
+- **Content-Type**: `image/svg+xml; charset=utf-8`
+- **Cache-Control**: `public, max-age=31536000, s-maxage=31536000, immutable`
+- **X-Robots-Tag**: `noindex, noimageindex, noarchive, nosnippet` (strictly prevents search engines from indexing generated placeholder images).
+- **CORS**: `Access-Control-Allow-Origin: *` and `Cross-Origin-Resource-Policy: cross-origin` (safe for HTML5 `<canvas>` export and cross-origin `fetch`).
+
+## 4. Client-Side JavaScript SDK (`/placeholger.js`)
+Include `<script src="https://placeholger.hellinger.wtf/placeholger.js"></script>` to generate placeholders on the client without server requests:
+- `window.Placeholger.svg({ w: 600, h: 400, bg: '9E9EA0', fg: 'FFFFFF', text: 'PLACEHOLGER', showDims: true })` -> returns raw `<svg>...</svg>` string.
+- `window.Placeholger.dataUri({ w: 600, h: 400, bg: '9E9EA0', fg: 'FFFFFF', text: 'PLACEHOLGER' })` -> returns `data:image/svg+xml;utf8,...`.
+- `<place-holger w="600" h="400" bg="0f172a" fg="38bdf8" text="Banner" dims></place-holger>` -> Custom Web Component.
+- `<img data-placeholger="600/400/9e9ea0/ffffff?text=Auto" />` -> Auto-hydrates `src` with data URI.
+
+## 5. Browser Agent / WebMCP Support
+When visited by an agentic browser on `https://placeholger.hellinger.wtf/`, the Studio registers `generate_placeholder` via `navigator.modelContext` (and `window.PlaceholgerStudio.agentTool`) allowing agents to programmatically configure the UI or retrieve SVG/PNG data URLs.

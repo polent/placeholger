@@ -1,0 +1,86 @@
+name: Build, Test & Deploy via SFTP
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build dist/ & Run Automated Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build production dist/ payload
+        run: npm run build
+
+      - name: Run PHP & E2E verification suite
+        run: npm test
+
+      - name: Upload compiled dist/ artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: placeholger-dist
+          path: dist/
+          include-hidden-files: true
+          retention-days: 7
+
+  deploy-sftp:
+    name: Deploy dist/ via SFTP
+    needs: build-and-test
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download compiled dist/ artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: placeholger-dist
+          path: dist/
+
+      - name: Install SFTP client tools
+        run: sudo apt-get update && sudo apt-get install -y lftp openssh-client
+
+      - name: Upload ./dist/ via SFTP
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT || '22' }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          SFTP_SSH_KEY: ${{ secrets.SFTP_SSH_KEY }}
+          SFTP_REMOTE_DIR: ${{ secrets.SFTP_REMOTE_DIR || './' }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -p "$SFTP_PORT" -H "$SFTP_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          if [ -n "$SFTP_SSH_KEY" ]; then
+            echo "$SFTP_SSH_KEY" > ~/.ssh/deploy_key
+            chmod 600 ~/.ssh/deploy_key
+            lftp -u "${SFTP_USER}," -p "${SFTP_PORT}" "sftp://${SFTP_HOST}" \
+              -e "set sftp:connect-program 'ssh -a -x -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no'; mirror --reverse --delete --verbose ./dist/ ${SFTP_REMOTE_DIR}; bye"
+          elif [ -n "$SFTP_PASSWORD" ]; then
+            lftp -u "${SFTP_USER},${SFTP_PASSWORD}" -p "${SFTP_PORT}" "sftp://${SFTP_HOST}" \
+              -e "set sftp:auto-confirm yes; mirror --reverse --delete --verbose ./dist/ ${SFTP_REMOTE_DIR}; bye"
+          else
+            echo "❌ Error: Set either SFTP_SSH_KEY or SFTP_PASSWORD in GitHub Repository Secrets."
+            exit 1
+          fi

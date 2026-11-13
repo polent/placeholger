@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "placeholger SVG Wireframe Service",
+  "name_for_model": "placeholger",
+  "description_for_human": "Instant zero-disk SVG wireframe placeholder generator with custom dimensions, hex colors, and label text.",
+  "description_for_model": "Use placeholger to generate placeholder image URLs or inline SVG wireframes for HTML, Markdown, React, or UI prototypes. Format: https://placeholger.hellinger.wtf/{w}/{h}/{bg_hex}/{fg_hex}?text={label}&dims={0|1} where w and h are integers between 1 and 2048.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://placeholger.hellinger.wtf/openapi.json"
+  },
+  "logo_url": "https://placeholger.hellinger.wtf/512/131316/ffffff?text=PH",
+  "contact_email": "info@hellinger.wtf",
+  "legal_info_url": "https://placeholger.hellinger.wtf/"
+}

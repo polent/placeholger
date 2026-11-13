@@ -1,0 +1,39 @@
+# placeholger.hellinger.wtf
+
+> Dead-simple, ultra-lightweight zero-disk SVG wireframe placeholder service and client-side JS SDK. Generates mathematically crisp vector guides with corner-to-center crosshairs, custom hex colors, and custom label text in <1ms.
+
+## Quick Start (Direct Image URLs)
+
+Construct any placeholder URL directly without registration or API keys:
+
+- **Full Specification**: `https://placeholger.hellinger.wtf/{width}/{height}/{bg_hex}/{fg_hex}?text={url_encoded_text}&dims={0|1}`
+- **Default Colors (`#9E9EA0` bg, `#FFFFFF` fg)**: `https://placeholger.hellinger.wtf/600/400`
+- **Square Shortcut (`width = height`)**: `https://placeholger.hellinger.wtf/512`
+- **Custom Colors + Custom Text**: `https://placeholger.hellinger.wtf/1200/630/0f172a/38bdf8?text=Hero+Banner&dims=1`
+
+## Parameter Constraints
+
+- `width` (`w`): Integer from `1` to `2048` (default: `600`). Out-of-range values return HTTP `400 Bad Request`.
+- `height` (`h`): Integer from `1` to `2048` (default: `400`, or equal to `width` when a single dimension is passed).
+- `bg_hex` (`bg`): 3 or 6 character hexadecimal color WITHOUT leading `#` (default: `9E9EA0`).
+- `fg_hex` (`fg`): 3 or 6 character hexadecimal color WITHOUT leading `#` (default: `FFFFFF`).
+- `text`: Optional query parameter (`?text=...`), up to 64 characters, XML-escaped automatically (default: `PLACEHOLGER`).
+- `dims` (`sub`): Optional query parameter (`?dims=1` or `?sub=1`) to append a `{width} × {height}` subtitle below the main label.
+
+## Client-Side On-The-Fly JS SDK (`placeholger.js`)
+
+Render SVG wireframes directly in the browser with zero network requests for individual images:
+
+```html
+<script src="https://placeholger.hellinger.wtf/placeholger.js" defer></script>
+
+<!-- Option 1: Custom Web Component -->
+<place-holger w="600" h="400" bg="0f172a" fg="38bdf8" text="Hero Banner" dims></place-holger>
+
+<!-- Option 2: Auto-hydrated <img> tag -->
+<img data-placeholger="600/400/9e9ea0/ffffff?text=Wireframe" alt="Wireframe" />
+```
+
+## Machine-Readable Specifications
+- [Full AI Documentation](/llms-full.txt): Complete API contract, HTTP headers, and integration examples.
+- [OpenAPI 3.1.0 Spec](/openapi.json): Formal REST API schema for tool-calling agents.

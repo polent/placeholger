@@ -1,1 +1,10 @@
 .vscode/mcp.json
+.env
+.env.*
+!.env.example
+dist/
+node_modules/
+vendor/
+.phpunit.result.cache
+playwright-report/
+test-results/

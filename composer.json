@@ -1,0 +1,12 @@
+{
+  "name": "hellinger/placeholger",
+  "description": "Zero-Disk Dynamic SVG Wireframe Placeholder Service",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1"
+  },
+  "scripts": {
+    "test": "php tests/php/SvgGeneratorTest.php"
+  }
+}

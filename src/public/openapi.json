@@ -1,0 +1,129 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "placeholger — Zero-Disk Dynamic SVG Placeholder API",
+    "version": "1.1.0",
+    "description": "Generates deterministic, ultra-lightweight SVG wireframe placeholders in memory (<1ms) with custom dimensions (1-2048px), hex colors, and XML-sanitized text overlays.",
+    "contact": {
+      "url": "https://placeholger.hellinger.wtf"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://placeholger.hellinger.wtf",
+      "description": "Production Edge Server"
+    }
+  ],
+  "paths": {
+    "/{w}/{h}/{bg}/{fg}": {
+      "get": {
+        "operationId": "getPlaceholderFull",
+        "summary": "Generate SVG wireframe with width, height, background hex, and foreground hex",
+        "parameters": [
+          {
+            "name": "w",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 2048, "default": 600 },
+            "description": "Image width in pixels (1 - 2048)"
+          },
+          {
+            "name": "h",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 2048, "default": 400 },
+            "description": "Image height in pixels (1 - 2048)"
+          },
+          {
+            "name": "bg",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$", "default": "9e9ea0" },
+            "description": "Background hex color without leading #"
+          },
+          {
+            "name": "fg",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$", "default": "ffffff" },
+            "description": "Foreground crosshairs & text hex color without leading #"
+          },
+          {
+            "name": "text",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "maxLength": 64, "default": "PLACEHOLGER" },
+            "description": "Custom centered label text"
+          },
+          {
+            "name": "dims",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean", "default": false },
+            "description": "Append {w} × {h} subtitle below main text"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SVG wireframe image",
+            "headers": {
+              "Cache-Control": { "schema": { "type": "string", "example": "public, max-age=31536000, s-maxage=31536000, immutable" } },
+              "X-Robots-Tag": { "schema": { "type": "string", "example": "noindex, noimageindex, noarchive, nosnippet" } },
+              "ETag": { "schema": { "type": "string" } }
+            },
+            "content": {
+              "image/svg+xml": {
+                "schema": { "type": "string" }
+              }
+            }
+          },
+          "400": {
+            "description": "Dimensions out of range (< 1 or > 2048) or non-integer"
+          }
+        }
+      }
+    },
+    "/{w}/{h}": {
+      "get": {
+        "operationId": "getPlaceholderDimensions",
+        "summary": "Generate SVG wireframe with width and height using default neutral gray (#9E9EA0 / #FFFFFF)",
+        "parameters": [
+          { "name": "w", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1, "maximum": 2048 } },
+          { "name": "h", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1, "maximum": 2048 } },
+          { "name": "text", "in": "query", "required": false, "schema": { "type": "string", "maxLength": 64 } },
+          { "name": "dims", "in": "query", "required": false, "schema": { "type": "boolean" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "SVG wireframe image",
+            "content": { "image/svg+xml": { "schema": { "type": "string" } } }
+          },
+          "400": { "description": "Invalid dimensions" }
+        }
+      }
+    },
+    "/{size}": {
+      "get": {
+        "operationId": "getPlaceholderSquare",
+        "summary": "Generate equilateral square SVG wireframe (w = h = size)",
+        "parameters": [
+          { "name": "size", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1, "maximum": 2048 } },
+          { "name": "bg", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "fg", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "text", "in": "query", "required": false, "schema": { "type": "string", "maxLength": 64 } },
+          { "name": "dims", "in": "query", "required": false, "schema": { "type": "boolean" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Square SVG wireframe image",
+            "content": { "image/svg+xml": { "schema": { "type": "string" } } }
+          },
+          "400": { "description": "Invalid dimension" }
+        }
+      }
+    }
+  }
+}
