@@ -56,30 +56,49 @@ jobs:
           name: placeholger-dist
           path: dist/
 
-      - name: Install SFTP client tools
-        run: sudo apt-get update && sudo apt-get install -y lftp openssh-client
+      - name: Install OpenSSH & sshpass
+        run: sudo apt-get update && sudo apt-get install -y openssh-client sshpass
 
-      - name: Upload ./dist/ via SFTP
+      - name: Upload ./dist/ via pure SFTP
         env:
-          SFTP_HOST: ${{ secrets.SFTP_HOST }}
-          SFTP_PORT: ${{ secrets.SFTP_PORT || '22' }}
-          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST || vars.SFTP_HOST }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT || vars.SFTP_PORT || '22' }}
+          SFTP_USER: ${{ secrets.SFTP_USER || vars.SFTP_USER }}
           SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
           SFTP_SSH_KEY: ${{ secrets.SFTP_SSH_KEY }}
-          SFTP_REMOTE_DIR: ${{ secrets.SFTP_REMOTE_DIR || './' }}
+          SFTP_REMOTE_DIR: ${{ secrets.SFTP_REMOTE_DIR || vars.SFTP_REMOTE_DIR || '.' }}
         run: |
+          if [ -z "$SFTP_HOST" ] || [ -z "$SFTP_USER" ]; then
+            echo "❌ Error: SFTP_HOST or SFTP_USER is empty. Set them in GitHub Repository Secrets or Variables."
+            exit 1
+          fi
+
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           ssh-keyscan -p "$SFTP_PORT" -H "$SFTP_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
 
+          REMOTE_DIR="${SFTP_REMOTE_DIR%/}"
+          [ -z "$REMOTE_DIR" ] && REMOTE_DIR="."
+
+          BATCH_FILE="$(mktemp)"
+          trap 'rm -f "$BATCH_FILE"' EXIT
+          cat > "$BATCH_FILE" <<EOF
+          -mkdir ${REMOTE_DIR}
+          -mkdir ${REMOTE_DIR}/assets
+          -mkdir ${REMOTE_DIR}/views
+          -mkdir ${REMOTE_DIR}/.well-known
+          put -r dist/. ${REMOTE_DIR}/
+          bye
+          EOF
+
+          SFTP_OPTS=(-P "${SFTP_PORT}" -o StrictHostKeyChecking=no -o ConnectTimeout=15)
+
           if [ -n "$SFTP_SSH_KEY" ]; then
             echo "$SFTP_SSH_KEY" > ~/.ssh/deploy_key
             chmod 600 ~/.ssh/deploy_key
-            lftp -u "${SFTP_USER}," -p "${SFTP_PORT}" "sftp://${SFTP_HOST}" \
-              -e "set sftp:connect-program 'ssh -a -x -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no'; mirror --reverse --delete --verbose ./dist/ ${SFTP_REMOTE_DIR}; bye"
+            sftp "${SFTP_OPTS[@]}" -i ~/.ssh/deploy_key -b "$BATCH_FILE" "${SFTP_USER}@${SFTP_HOST}"
           elif [ -n "$SFTP_PASSWORD" ]; then
-            lftp -u "${SFTP_USER},${SFTP_PASSWORD}" -p "${SFTP_PORT}" "sftp://${SFTP_HOST}" \
-              -e "set sftp:auto-confirm yes; mirror --reverse --delete --verbose ./dist/ ${SFTP_REMOTE_DIR}; bye"
+            sshpass -p "$SFTP_PASSWORD" sftp "${SFTP_OPTS[@]}" -b "$BATCH_FILE" "${SFTP_USER}@${SFTP_HOST}"
           else
             echo "❌ Error: Set either SFTP_SSH_KEY or SFTP_PASSWORD in GitHub Repository Secrets."
             exit 1
