@@ -8,7 +8,6 @@
   var currentThemePreference = 'system';
   var currentAspectRatio = 600 / 400;
   var isAspectLocked = false;
-  var activeTab = 'php';
   var showDimensions = false;
 
   function getSystemTheme() {
@@ -392,31 +391,6 @@
     a.click();
     document.body.removeChild(a);
   }
-
-  window.switchTab = function (tab) {
-    activeTab = tab;
-    var tabs = ['php', 'sdk', 'edge'];
-    tabs.forEach(function (t) {
-      var view = document.getElementById('codeView-' + t);
-      var btn = document.getElementById('tabBtn-' + t);
-      if (view && btn) {
-        if (t === tab) {
-          view.classList.remove('hidden');
-          btn.className = 'font-label-sm text-label-sm text-primary font-medium border-b-2 border-primary pb-1';
-        } else {
-          view.classList.add('hidden');
-          btn.className = 'font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface pb-1 transition-colors';
-        }
-      }
-    });
-  };
-
-  window.copyCurrentTabSnippet = function (btnElement) {
-    var view = document.getElementById('codeView-' + activeTab);
-    if (view) {
-      window.copyToClipboard(view.innerText, btnElement);
-    }
-  };
 
   /**
    * Agentic Browsing & WebMCP Tool Registration

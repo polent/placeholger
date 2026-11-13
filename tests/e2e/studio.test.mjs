@@ -97,6 +97,30 @@ async function runTests() {
     const dataUri = PlaceholgerSDK.dataUri('512/1e3a8a/93c5fd?text=Square');
     ok(dataUri.startsWith('data:image/svg+xml;utf8,') && decodeURIComponent(dataUri).includes('width="512" height="512"'), 'Placeholger.dataUri() generates valid data URI');
 
+    console.log('==> [5/5] Testing Self-Host Only Policy & Hotlink Rejection for placeholger.js...');
+    ok(!homeHtml.includes('https://placeholger.hellinger.wtf/placeholger.js"'), 'Landing page does not offer remote <script src="https://.../placeholger.js"> loading');
+    ok(homeHtml.includes('src="/js/placeholger.js"'), 'Landing page documents self-hosted /js/placeholger.js');
+
+    const badRefRes = await fetch(`${BASE}/placeholger.js`, {
+      headers: { Referer: 'https://evil-third-party.example/index.html' }
+    });
+    ok(badRefRes.status === 403, 'GET /placeholger.js with remote Referer is rejected with 403 Forbidden');
+
+    const crossSiteRes = await fetch(`${BASE}/placeholger.js`, {
+      headers: { 'Sec-Fetch-Site': 'cross-site' }
+    });
+    ok(crossSiteRes.status === 403, 'GET /placeholger.js with Sec-Fetch-Site: cross-site is rejected with 403 Forbidden');
+
+    const sameOriginRes = await fetch(`${BASE}/placeholger.js`, {
+      headers: { Referer: `${BASE}/`, 'Sec-Fetch-Site': 'same-origin' }
+    });
+    ok(sameOriginRes.status === 200, 'GET /placeholger.js with same-origin Referer returns 200 OK');
+    ok(sameOriginRes.headers.get('cross-origin-resource-policy') === 'same-origin', 'placeholger.js emits Cross-Origin-Resource-Policy: same-origin');
+    ok(!sameOriginRes.headers.get('access-control-allow-origin'), 'placeholger.js does not emit wildcard Access-Control-Allow-Origin');
+
+    const directDownloadRes = await fetch(`${BASE}/placeholger.js`);
+    ok(directDownloadRes.status === 200, 'Direct download of /placeholger.js (no Referer/cross-site) returns 200 OK for self-hosting');
+
     console.log(`\n✅ All ${passed} E2E, SEO, Agentic & JS SDK assertions passed!`);
   } finally {
     server.kill();

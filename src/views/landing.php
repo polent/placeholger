@@ -434,7 +434,7 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
             <div class="p-space-md rounded bg-surface-container-low border border-surface-container-highest/40 flex flex-col gap-space-sm">
               <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">1. Web Component</span>
-              <pre class="p-space-sm rounded bg-surface-container-lowest font-code-md text-xs text-on-surface overflow-x-auto"><code>&lt;script src="https://placeholger.hellinger.wtf/placeholger.js" defer&gt;&lt;/script&gt;
+              <pre class="p-space-sm rounded bg-surface-container-lowest font-code-md text-xs text-on-surface overflow-x-auto"><code>&lt;script src="/js/placeholger.js" defer&gt;&lt;/script&gt;
 
 &lt;place-holger
   w="600" h="400"
@@ -457,6 +457,59 @@
               <div class="flex items-center justify-center bg-surface-container-lowest p-2 rounded border border-surface-container-highest/30">
                 <place-holger w="360" h="160" bg="0f172a" fg="38bdf8" text="CLIENT ON-THE-FLY" dims></place-holger>
               </div>
+            </div>
+          </div>
+
+          <!-- Self-host placeholger.js in your own project -->
+          <div class="p-space-md rounded bg-surface-container-low border border-surface-container-highest/40 flex flex-col gap-space-md" id="self-host">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+              <div class="flex flex-col gap-space-xs">
+                <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">Self-host in your own project</span>
+                <p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">
+                  <code class="font-code-md text-primary">placeholger.js</code> is a single dependency-free file (~1.8 KB) that runs entirely in the browser. Remote hotlinking is blocked (<code class="font-code-md text-primary">403 Forbidden</code>), so save a local copy into your project's static assets:
+                </p>
+              </div>
+              <a class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded bg-primary text-on-primary font-label-md text-label-md font-medium hover:opacity-90 transition-opacity shrink-0" download="placeholger.js" href="/placeholger.js">
+                <span>↓ Download placeholger.js</span>
+              </a>
+            </div>
+
+            <div class="flex flex-col gap-space-sm">
+              <pre class="p-space-sm rounded bg-surface-container-lowest font-code-md text-xs text-on-surface overflow-x-auto"><code># 1. Save a local copy in your project
+curl -fsSL -o public/js/placeholger.js https://placeholger.hellinger.wtf/placeholger.js
+
+# 2. Load it from your own origin
+&lt;script src="/js/placeholger.js" defer&gt;&lt;/script&gt;</code></pre>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">No build step or server-side code needed. Once saved locally, the <code class="font-code-md text-primary">&lt;place-holger&gt;</code> component works offline and without external requests.</p>
+            </div>
+
+            <div class="flex flex-col gap-space-sm">
+              <span class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider">Component attributes</span>
+              <div class="flex flex-col divide-y divide-surface-container-high/50 font-body-sm text-body-sm">
+                <div class="py-2 flex items-start justify-between gap-space-sm">
+                  <span class="font-code-md text-code-md text-primary">w / h</span>
+                  <span class="text-on-surface text-right">Width and height in px (1–2048). If only <code class="font-code-md">w</code> is set, it renders a square.</span>
+                </div>
+                <div class="py-2 flex items-start justify-between gap-space-sm">
+                  <span class="font-code-md text-code-md text-primary">bg / fg</span>
+                  <span class="text-on-surface text-right">Background and line/text color as 3- or 6-char hex, without <code class="font-code-md">#</code>.</span>
+                </div>
+                <div class="py-2 flex items-start justify-between gap-space-sm">
+                  <span class="font-code-md text-code-md text-primary">text</span>
+                  <span class="text-on-surface text-right">Center label (max 64 chars). Defaults to <code class="font-code-md">PLACEHOLGER</code>.</span>
+                </div>
+                <div class="py-2 flex items-start justify-between gap-space-sm">
+                  <span class="font-code-md text-code-md text-primary">dims</span>
+                  <span class="text-on-surface text-right">Boolean attribute that adds a <code class="font-code-md">w × h</code> subtitle.</span>
+                </div>
+                <div class="py-2 flex items-start justify-between gap-space-sm">
+                  <span class="font-code-md text-code-md text-primary">spec</span>
+                  <span class="text-on-surface text-right">Shorthand alternative, e.g. <code class="font-code-md">spec="600/400/0f172a/38bdf8?text=Hero"</code>.</span>
+                </div>
+              </div>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">
+                For scripting there is also <code class="font-code-md text-primary">window.Placeholger.svg({...})</code> (returns SVG markup) and <code class="font-code-md text-primary">window.Placeholger.dataUri({...})</code> (returns a <code class="font-code-md">data:</code> URI for <code class="font-code-md">&lt;img src&gt;</code> or CSS).
+              </p>
             </div>
           </div>
         </section>
@@ -570,54 +623,6 @@
                       <span class="font-body-sm text-body-sm text-on-surface-variant">Only this Studio landing page is indexed. All generated SVG images send <code class="font-code-md text-primary">X-Robots-Tag: noindex, noimageindex</code> so search engines never waste crawl budget on placeholder URLs.</span>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              <!-- Code Tabs -->
-              <div class="rounded bg-surface-container-low border border-surface-container-highest/40 overflow-hidden flex flex-col">
-                <div class="flex items-center justify-between px-space-md py-space-sm bg-surface-container border-b border-surface-container-highest/50">
-                  <div class="flex items-center gap-space-md">
-                    <button class="font-label-sm text-label-sm text-primary font-medium border-b-2 border-primary pb-1" id="tabBtn-php" onclick="switchTab('php')" type="button">api.php (Server)</button>
-                    <button class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface pb-1 transition-colors" id="tabBtn-sdk" onclick="switchTab('sdk')" type="button">placeholger.js (Client)</button>
-                    <button class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface pb-1 transition-colors" id="tabBtn-edge" onclick="switchTab('edge')" type="button">.htaccess (Apache)</button>
-                  </div>
-                  <button class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" id="copyCodeBlockBtn" onclick="copyCurrentTabSnippet(this)" type="button">
-                    <span>Copy</span>
-                  </button>
-                </div>
-
-                <div class="p-space-md bg-surface-container-lowest overflow-x-auto" id="codeView-php">
-                  <pre class="font-code-md text-xs text-on-surface leading-relaxed"><code>&lt;?php
-// Zero-disk SVG wireframe generator with non-indexing &amp; immutable cache
-header('Content-Type: image/svg+xml; charset=utf-8');
-header('X-Robots-Tag: noindex, noimageindex, noarchive, nosnippet');
-header('Cache-Control: public, max-age=31536000, s-maxage=31536000, immutable');
-header('Access-Control-Allow-Origin: *');
-
-$params = \Placeholger\SvgGenerator::parseRequest($_SERVER['REQUEST_URI'], $_GET);
-echo \Placeholger\SvgGenerator::renderSvg($params);</code></pre>
-                </div>
-
-                <div class="p-space-md bg-surface-container-lowest overflow-x-auto hidden" id="codeView-sdk">
-                  <pre class="font-code-md text-xs text-on-surface leading-relaxed"><code>// Client-side on-the-fly generation via placeholger.js
-const svgMarkup = window.Placeholger.svg({
-  w: 600,
-  h: 400,
-  bg: '0F172A',
-  fg: '38BDF8',
-  text: 'Hero Banner',
-  showDims: true
-});
-
-// Or declarative Web Component (zero network requests):
-// &lt;place-holger w="600" h="400" bg="0f172a" fg="38bdf8" text="Banner" dims&gt;&lt;/place-holger&gt;</code></pre>
-                </div>
-
-                <div class="p-space-md bg-surface-container-lowest overflow-x-auto hidden" id="codeView-edge">
-                  <pre class="font-code-md text-xs text-on-surface leading-relaxed"><code>RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^ - [L]
-RewriteRule ^(.+)$ api.php [QSA,L]</code></pre>
                 </div>
               </div>
             </div>

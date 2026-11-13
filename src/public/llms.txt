@@ -22,10 +22,12 @@ Construct any placeholder URL directly without registration or API keys:
 
 ## Client-Side On-The-Fly JS SDK (`placeholger.js`)
 
-Render SVG wireframes directly in the browser with zero network requests for individual images:
+Render SVG wireframes directly in the browser with zero network requests for individual images.
+**Note**: Remote hotlinking of `placeholger.js` is blocked (`403 Forbidden`); download a copy and self-host it from your own origin:
 
 ```html
-<script src="https://placeholger.hellinger.wtf/placeholger.js" defer></script>
+<!-- Download https://placeholger.hellinger.wtf/placeholger.js to /js/placeholger.js -->
+<script src="/js/placeholger.js" defer></script>
 
 <!-- Option 1: Custom Web Component -->
 <place-holger w="600" h="400" bg="0f172a" fg="38bdf8" text="Hero Banner" dims></place-holger>

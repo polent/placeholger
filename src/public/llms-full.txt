@@ -34,7 +34,7 @@ Every generated wireframe replicates the classic architectural placeholder aesth
 - **CORS**: `Access-Control-Allow-Origin: *` and `Cross-Origin-Resource-Policy: cross-origin` (safe for HTML5 `<canvas>` export and cross-origin `fetch`).
 
 ## 4. Client-Side JavaScript SDK (`/placeholger.js`)
-Include `<script src="https://placeholger.hellinger.wtf/placeholger.js"></script>` to generate placeholders on the client without server requests:
+Download `https://placeholger.hellinger.wtf/placeholger.js` and self-host it in your project (e.g. `<script src="/js/placeholger.js" defer></script>`). Remote hotlinking is rejected with HTTP `403 Forbidden` and `Cross-Origin-Resource-Policy: same-origin`. Once self-hosted, you can generate placeholders on the client without server requests:
 - `window.Placeholger.svg({ w: 600, h: 400, bg: '9E9EA0', fg: 'FFFFFF', text: 'PLACEHOLGER', showDims: true })` -> returns raw `<svg>...</svg>` string.
 - `window.Placeholger.dataUri({ w: 600, h: 400, bg: '9E9EA0', fg: 'FFFFFF', text: 'PLACEHOLGER' })` -> returns `data:image/svg+xml;utf8,...`.
 - `<place-holger w="600" h="400" bg="0f172a" fg="38bdf8" text="Banner" dims></place-holger>` -> Custom Web Component.

@@ -5,7 +5,8 @@ declare(strict_types=1);
  * placeholger.hellinger.wtf — Main Front Controller & Router
  *
  * - Serves the canonical SEO-indexed Studio Landing Page on `/` (unless `?w=` is explicitly passed).
- * - Serves static files directly when run under PHP's built-in development server.
+ * - Serves static files directly when run under PHP's built-in development server,
+ *   enforcing same-origin / hotlink protection on `/placeholger.js`.
  * - Delegates all placeholder dimension paths (e.g., `/600/400/9e9ea0/ffffff?text=...`, `/512`, `/600x400`)
  *   to the zero-disk SVG engine (`api.php`) with strict `X-Robots-Tag: noindex, noimageindex` headers.
  */
@@ -13,10 +14,45 @@ declare(strict_types=1);
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
 $path = (string)parse_url($requestUri, PHP_URL_PATH);
 
+/**
+ * Rejects cross-site / remote Referer hotlinking of placeholger.js.
+ * Direct downloads (no Referer and not Sec-Fetch-Site: cross-site) are permitted so users can self-host.
+ */
+function enforceSelfHostPolicyForSdk(): void
+{
+    $secFetchSite = strtolower(trim((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')));
+    if ($secFetchSite === 'cross-site') {
+        http_response_code(403);
+        header('Content-Type: text/plain; charset=utf-8');
+        header('Cross-Origin-Resource-Policy: same-origin');
+        echo "403 Forbidden: Remote loading of placeholger.js is not allowed. Please download and self-host a local copy.";
+        exit;
+    }
+
+    $referer = trim((string)($_SERVER['HTTP_REFERER'] ?? ''));
+    if ($referer !== '') {
+        $refHost = strtolower((string)parse_url($referer, PHP_URL_HOST));
+        $reqHost = strtolower((string)explode(':', (string)($_SERVER['HTTP_HOST'] ?? ''))[0]);
+        $allowedHosts = array_filter(['placeholger.hellinger.wtf', 'www.placeholger.hellinger.wtf', 'localhost', '127.0.0.1', $reqHost]);
+
+        if ($refHost === '' || !in_array($refHost, $allowedHosts, true)) {
+            http_response_code(403);
+            header('Content-Type: text/plain; charset=utf-8');
+            header('Cross-Origin-Resource-Policy: same-origin');
+            echo "403 Forbidden: Remote loading of placeholger.js is not allowed. Please download and self-host a local copy.";
+            exit;
+        }
+    }
+}
+
 // Support PHP built-in server (`php -S`) serving static assets directly
 if (PHP_SAPI === 'cli-server') {
     $staticFile = __DIR__ . $path;
     if ($path !== '/' && $path !== '/index.php' && $path !== '/api.php' && is_file($staticFile)) {
+        if ($path === '/placeholger.js') {
+            enforceSelfHostPolicyForSdk();
+        }
+
         // Attach right MIME type for special agentic/spec files if needed
         $ext = strtolower(pathinfo($staticFile, PATHINFO_EXTENSION));
         $mimeMap = [
@@ -30,7 +66,12 @@ if (PHP_SAPI === 'cli-server') {
         ];
         if (isset($mimeMap[$ext])) {
             header('Content-Type: ' . $mimeMap[$ext]);
-            header('Access-Control-Allow-Origin: *');
+            header('X-Content-Type-Options: nosniff');
+            if ($path === '/placeholger.js') {
+                header('Cross-Origin-Resource-Policy: same-origin');
+            } else {
+                header('Access-Control-Allow-Origin: *');
+            }
             readfile($staticFile);
             exit;
         }

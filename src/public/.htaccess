@@ -1,5 +1,6 @@
 # placeholger.hellinger.wtf — Apache Production Configuration (.htaccess)
-# Enforces Zero-Disk SVG Routing, Immutable Edge Caching, Compression, CORS, and Image Non-Indexing.
+# Enforces Zero-Disk SVG Routing, Immutable Edge Caching, Compression, CORS, Image Non-Indexing,
+# and Same-Origin / Self-Host Protection for placeholger.js.
 
 Options -Indexes -MultiViews
 DirectoryIndex index.php
@@ -7,6 +8,17 @@ DirectoryIndex index.php
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
+
+    # Block remote hotlinking of placeholger.js (people must download & self-host a copy)
+    RewriteCond %{REQUEST_URI} ^/placeholger\.js$ [NC]
+    RewriteCond %{HTTP:Sec-Fetch-Site} ^cross-site$ [NC]
+    RewriteRule ^ - [F,L]
+
+    RewriteCond %{REQUEST_URI} ^/placeholger\.js$ [NC]
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?placeholger\.hellinger\.wtf(/|$) [NC]
+    RewriteCond %{HTTP_REFERER} !^https?://(127\.0\.0\.1|localhost)(:\d+)?(/|$) [NC]
+    RewriteRule ^ - [F,L]
 
     # Allow direct access to existing static files (.css, .js, .txt, .json, .xml, .woff2, etc.)
     RewriteCond %{REQUEST_FILENAME} -f
@@ -17,15 +29,20 @@ DirectoryIndex index.php
 </IfModule>
 
 <IfModule mod_headers.c>
-    # Global Security & CORS headers
+    # Global Security headers
     Header always set X-Content-Type-Options "nosniff"
-    Header always set Access-Control-Allow-Origin "*"
     Header always set Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
 
-    # Ensure static assets and JS SDK are cached aggressively
+    # Ensure static assets are cached aggressively
     <FilesMatch "\.(css|js|woff2|svg)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
+
+    # Enforce same-origin policy on placeholger.js (no remote script loading)
+    <Files "placeholger.js">
+        Header set Cross-Origin-Resource-Policy "same-origin"
+        Header unset Access-Control-Allow-Origin
+    </Files>
 
     # Ensure AI / Agentic discovery manifests are easily readable with CORS
     <FilesMatch "(llms\.txt|llms-full\.txt|openapi\.json|ai-plugin\.json|robots\.txt|sitemap\.xml)$">
