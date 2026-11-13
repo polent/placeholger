@@ -12,6 +12,7 @@
   <link rel="alternate" type="text/markdown" title="LLMs Documentation" href="/llms.txt" />
   <link rel="alternate" type="text/plain" title="Full LLMs Documentation" href="/llms-full.txt" />
   <link rel="service-desc" type="application/vnd.oai.openapi+json" title="OpenAPI 3.1 Specification" href="/openapi.json" />
+  <link rel="ai-catalog" type="application/json" title="Agentic Resource Discovery Catalog" href="/.well-known/ai-catalog.json" />
   <link rel="icon" type="image/svg+xml" href="/64/131316/ffffff?text=PH" />
 
   <!-- OpenGraph / Social Metadata -->
@@ -186,7 +187,7 @@
         <section aria-label="Interactive Placeholder Configurator" class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
 
           <!-- LEFT COLUMN: CONTROLS & QUERY BUILDER (7 Cols) -->
-          <div class="lg:col-span-7 flex flex-col gap-space-md p-space-md sm:p-space-lg rounded bg-surface-container-low border border-surface-container-highest/40">
+          <form class="lg:col-span-7 flex flex-col gap-space-md p-space-md sm:p-space-lg rounded bg-surface-container-low border border-surface-container-highest/40" id="configuratorForm" onsubmit="return false;" tooldescription="Configure and generate a zero-disk SVG wireframe placeholder URL and inline SVG markup" toolname="generate_placeholder">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-space-sm">
                 <h2 class="font-code-md text-code-md text-primary font-medium">01 // Configurator</h2>
@@ -204,7 +205,7 @@
                 <div class="col-span-1 sm:col-span-5 flex flex-col gap-1">
                   <label class="font-label-sm text-label-sm text-on-surface-variant" for="inputWidth">Width</label>
                   <div class="flex items-center bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
-                    <input class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputWidth" max="2048" min="1" oninput="handleDimensionChange('width')" type="number" value="600" />
+                    <input class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputWidth" max="2048" min="1" name="width" oninput="handleDimensionChange('width')" toolparamdescription="Placeholder width in pixels (1 to 2048)" type="number" value="600" />
                     <span aria-hidden="true" class="font-label-sm text-label-sm text-on-surface-variant">px</span>
                   </div>
                 </div>
@@ -214,7 +215,7 @@
                 <div class="col-span-1 sm:col-span-5 flex flex-col gap-1">
                   <label class="font-label-sm text-label-sm text-on-surface-variant" for="inputHeight">Height</label>
                   <div class="flex items-center bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
-                    <input class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputHeight" max="2048" min="1" oninput="handleDimensionChange('height')" type="number" value="400" />
+                    <input class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputHeight" max="2048" min="1" name="height" oninput="handleDimensionChange('height')" toolparamdescription="Placeholder height in pixels (1 to 2048)" type="number" value="400" />
                     <span aria-hidden="true" class="font-label-sm text-label-sm text-on-surface-variant">px</span>
                   </div>
                 </div>
@@ -248,7 +249,7 @@
                   <div class="flex items-center gap-2 bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
                     <input aria-label="Background color picker" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0" id="pickerBg" oninput="handleColorPickerChange('bg', this.value)" type="color" value="#9E9EA0" />
                     <span aria-hidden="true" class="font-code-md text-code-md text-on-surface-variant">#</span>
-                    <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputBg" maxlength="6" oninput="handleHexInputChange('bg', this.value)" spellcheck="false" type="text" value="9E9EA0" />
+                    <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputBg" maxlength="6" name="bg" oninput="handleHexInputChange('bg', this.value)" spellcheck="false" toolparamdescription="Background hex color (3 or 6 hex characters without #)" type="text" value="9E9EA0" />
                   </div>
                 </div>
                 <div class="flex flex-col gap-1">
@@ -256,7 +257,7 @@
                   <div class="flex items-center gap-2 bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
                     <input aria-label="Foreground color picker" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0" id="pickerFg" oninput="handleColorPickerChange('fg', this.value)" type="color" value="#FFFFFF" />
                     <span aria-hidden="true" class="font-code-md text-code-md text-on-surface-variant">#</span>
-                    <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputFg" maxlength="6" oninput="handleHexInputChange('fg', this.value)" spellcheck="false" type="text" value="FFFFFF" />
+                    <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputFg" maxlength="6" name="fg" oninput="handleHexInputChange('fg', this.value)" spellcheck="false" toolparamdescription="Foreground crosshair and text hex color (3 or 6 hex characters without #)" type="text" value="FFFFFF" />
                   </div>
                 </div>
               </div>
@@ -267,14 +268,14 @@
               <div class="flex items-center justify-between flex-wrap gap-2">
                 <label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider" for="inputText">Custom Text Overlay (?text=...)</label>
                 <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-                  <input class="sr-only peer" id="showDimensionsCheckbox" onchange="toggleShowDimensions()" role="switch" type="checkbox" />
+                  <input class="sr-only peer" id="showDimensionsCheckbox" name="dims" onchange="toggleShowDimensions()" role="switch" toolparamdescription="Append dimensions subtitle below main label" type="checkbox" />
                   <div class="w-8 h-4 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600 relative"></div>
                   <span class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface">Append Dimensions Subtitle (?dims=1)</span>
                 </label>
               </div>
               <div class="flex items-center bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-2 focus-within:ring-1 focus-within:ring-primary">
                 <span aria-hidden="true" class="font-code-md text-on-surface-variant mr-2">T</span>
-                <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none" id="inputText" maxlength="64" oninput="handleTextChange()" placeholder="e.g., Hero Banner, Avatar, or leave blank for default 'PLACEHOLGER'" type="text" value="" />
+                <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none" id="inputText" maxlength="64" name="text" oninput="handleTextChange()" placeholder="e.g., Hero Banner, Avatar, or leave blank for default 'PLACEHOLGER'" toolparamdescription="Centered label text (max 64 characters)" type="text" value="" />
                 <button class="text-on-surface-variant hover:text-primary text-xs px-2 py-1 rounded transition-colors hidden" id="clearTextBtn" onclick="clearCustomText()" type="button">Clear</button>
               </div>
               <div class="flex flex-wrap items-center gap-1.5 pt-1">
@@ -377,7 +378,7 @@
                 <span class="text-on-surface-variant">$</span>
               </button>
             </div>
-          </div>
+          </form>
 
           <!-- RIGHT COLUMN: INTERACTIVE CANVAS STAGE / LIVE PREVIEW & EXPORT (5 Cols) -->
           <div class="lg:col-span-5 flex flex-col gap-space-sm">

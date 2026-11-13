@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/ards-project/ard-spec/main/spec/schemas/ai-catalog.schema.json",
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "placeholger.hellinger.wtf",
+    "identifier": "did:web:placeholger.hellinger.wtf",
+    "documentationUrl": "https://placeholger.hellinger.wtf/llms.txt"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:placeholger.hellinger.wtf:svg:openapi",
+      "displayName": "placeholger SVG Placeholder API",
+      "type": "application/openapi+json",
+      "url": "https://placeholger.hellinger.wtf/openapi.json",
+      "description": "Zero-disk dynamic SVG wireframe placeholder service supporting custom dimensions (1-2048px), hex colors, and XML-sanitized label text.",
+      "capabilities": [
+        "GenerateSvgPlaceholder",
+        "CustomDimensions",
+        "CustomHexColors",
+        "CustomTextOverlay"
+      ],
+      "representativeQueries": [
+        "generate a 600x400 wireframe placeholder SVG",
+        "create a dark slate 1200x630 hero banner placeholder image URL",
+        "generate a square 512x512 avatar placeholder with custom colors"
+      ],
+      "version": "1.1.0",
+      "updatedAt": "2026-11-13T00:00:00Z"
+    }
+  ]
+}

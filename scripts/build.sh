@@ -23,6 +23,7 @@ cp src/public/llms.txt dist/llms.txt
 cp src/public/llms-full.txt dist/llms-full.txt
 cp src/public/openapi.json dist/openapi.json
 cp src/public/.well-known/ai-plugin.json dist/.well-known/ai-plugin.json
+cp src/public/.well-known/ai-catalog.json dist/.well-known/ai-catalog.json
 cp src/views/landing.php dist/views/landing.php
 
 echo "==> [3/4] Compiling & minifying Neutral Spec CSS..."

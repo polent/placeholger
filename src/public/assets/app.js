@@ -454,12 +454,13 @@
         description: 'Configures and generates a zero-disk SVG wireframe placeholder URL and inline SVG markup.',
         inputSchema: {
           type: 'object',
+          additionalProperties: false,
           properties: {
-            width: { type: 'integer', minimum: 1, maximum: 2048, default: 600 },
-            height: { type: 'integer', minimum: 1, maximum: 2048, default: 400 },
-            bg: { type: 'string', description: 'Hex background color without #', default: '9E9EA0' },
-            fg: { type: 'string', description: 'Hex foreground color without #', default: 'FFFFFF' },
-            text: { type: 'string', description: 'Centered text label', default: 'PLACEHOLGER' },
+            width: { type: 'integer', description: 'Placeholder width in pixels (1 to 2048)', minimum: 1, maximum: 2048, default: 600 },
+            height: { type: 'integer', description: 'Placeholder height in pixels (1 to 2048)', minimum: 1, maximum: 2048, default: 400 },
+            bg: { type: 'string', description: 'Hex background color without #', pattern: '^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$', default: '9E9EA0' },
+            fg: { type: 'string', description: 'Hex foreground color without #', pattern: '^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$', default: 'FFFFFF' },
+            text: { type: 'string', description: 'Centered text label', maxLength: 64, default: 'PLACEHOLGER' },
             dims: { type: 'boolean', description: 'Show dimensions subtitle', default: false }
           }
         },

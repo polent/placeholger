@@ -45,7 +45,7 @@ DirectoryIndex index.php
     </Files>
 
     # Ensure AI / Agentic discovery manifests are easily readable with CORS
-    <FilesMatch "(llms\.txt|llms-full\.txt|openapi\.json|ai-plugin\.json|robots\.txt|sitemap\.xml)$">
+    <FilesMatch "(llms\.txt|llms-full\.txt|openapi\.json|ai-plugin\.json|ai-catalog\.json|robots\.txt|sitemap\.xml)$">
         Header set Cache-Control "public, max-age=3600"
         Header set Access-Control-Allow-Origin "*"
     </FilesMatch>
