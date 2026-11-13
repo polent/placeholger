@@ -60,6 +60,12 @@ code, pre, input[type="number"], input#inputBg, input#inputFg {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+place-holger svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;

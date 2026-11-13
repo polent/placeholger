@@ -31,6 +31,10 @@ DirectoryIndex index.php
 <IfModule mod_headers.c>
     # Global Security headers
     Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Cross-Origin-Opener-Policy "same-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
     Header always set Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
 
     # Ensure static assets are cached aggressively

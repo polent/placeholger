@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#131316" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
   <title>placeholger.hellinger.wtf — Zero-Disk Dynamic SVG Placeholder Engine &amp; JS SDK</title>
   <meta name="description" content="Dead-simple, ultra-lightweight dynamic SVG wireframe placeholder service and client-side JS SDK. Generates mathematically crisp vector guides with custom hex colors, custom label text, zero disk footprint, and instant edge delivery." />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
@@ -402,7 +404,24 @@
 
               <div class="relative max-w-full max-h-full transition-all duration-150 flex items-center justify-center shadow-2xl" id="previewCanvasWrapper" style="width: 90%; height: 60%;">
                 <div class="w-full h-full flex items-center justify-center overflow-hidden rounded-sm" id="previewSvgHost">
-                  <!-- Populated live by Placeholger.svg() -->
+                  <?php
+                  if (!class_exists('Placeholger\\SvgGenerator')) {
+                      $apiPath = is_file(__DIR__ . '/../api.php') ? __DIR__ . '/../api.php' : __DIR__ . '/../public/api.php';
+                      if (is_file($apiPath)) {
+                          require_once $apiPath;
+                      }
+                  }
+                  if (class_exists('Placeholger\\SvgGenerator')) {
+                      echo \Placeholger\SvgGenerator::renderSvg([
+                          'w' => 600,
+                          'h' => 400,
+                          'bg' => '9E9EA0',
+                          'fg' => 'FFFFFF',
+                          'text' => 'PLACEHOLGER',
+                          'showDims' => false,
+                      ]);
+                  }
+                  ?>
                 </div>
               </div>
             </div>
