@@ -10,6 +10,15 @@
   var isAspectLocked = false;
   var showDimensions = false;
 
+  function announceStatus(message) {
+    var statusEl = document.getElementById('srStatus');
+    if (!statusEl) return;
+    statusEl.textContent = '';
+    setTimeout(function () {
+      statusEl.textContent = message;
+    }, 20);
+  }
+
   function getSystemTheme() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
@@ -37,6 +46,10 @@
     btnLight.className = pref === 'light' ? activeClass : inactiveClass;
     btnDark.className = pref === 'dark' ? activeClass : inactiveClass;
     btnSys.className = pref === 'system' ? activeClass : inactiveClass;
+
+    btnLight.setAttribute('aria-pressed', pref === 'light' ? 'true' : 'false');
+    btnDark.setAttribute('aria-pressed', pref === 'dark' ? 'true' : 'false');
+    btnSys.setAttribute('aria-pressed', pref === 'system' ? 'true' : 'false');
   }
 
   window.setTheme = function (pref) {
@@ -186,11 +199,13 @@
   };
 
   window.clearCustomText = function () {
-    document.getElementById('inputText').value = '';
+    var inputEl = document.getElementById('inputText');
+    inputEl.value = '';
     var clearBtn = document.getElementById('clearTextBtn');
     if (clearBtn) clearBtn.classList.add('hidden');
     var s = getState();
     updateUI(s.w, s.h);
+    inputEl.focus();
   };
 
   window.applySampleText = function (sample) {
@@ -233,6 +248,7 @@
     currentAspectRatio = 1.5;
 
     updateUI(600, 400);
+    announceStatus('Configurator reset to defaults');
   };
 
   function buildPathQuery(s) {
@@ -313,12 +329,15 @@
   window.copyToClipboard = function (text, btnElement) {
     if (!navigator.clipboard) return;
     navigator.clipboard.writeText(text).then(function () {
+      announceStatus('Copied to clipboard');
       if (!btnElement) return;
       var originalHtml = btnElement.innerHTML;
       btnElement.innerHTML = '<span>✓ Copied!</span>';
       setTimeout(function () {
         btnElement.innerHTML = originalHtml;
       }, 1600);
+    }).catch(function () {
+      announceStatus('Copy to clipboard failed');
     });
   };
 
@@ -360,6 +379,7 @@
       var blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
       var url = URL.createObjectURL(blob);
       triggerDownload(url, fileBase + '.svg');
+      announceStatus('SVG download started');
       setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
       return;
     }
@@ -378,6 +398,7 @@
         URL.revokeObjectURL(domUrl);
         var pngUrl = canvas.toDataURL('image/png');
         triggerDownload(pngUrl, fileBase + '.png');
+        announceStatus('PNG export started');
       };
       img.src = domUrl;
     }

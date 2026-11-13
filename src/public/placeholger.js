@@ -142,18 +142,19 @@
 
     var subtitleSvg = '';
     if (showDims && minDim >= 48) {
-      subtitleSvg = '\n  <text x="50%" y="' + subY + '" fill="' + fg + '" fill-opacity="0.8" font-family="\'JetBrains Mono\', ui-monospace, monospace" font-size="' + subFontSize + '" font-weight="500" text-anchor="middle" dominant-baseline="central">' + w + ' × ' + h + '</text>';
+      subtitleSvg = '\n  <text aria-hidden="true" x="50%" y="' + subY + '" fill="' + fg + '" font-family="\'JetBrains Mono\', ui-monospace, monospace" font-size="' + subFontSize + '" font-weight="500" text-anchor="middle" dominant-baseline="central">' + w + ' × ' + h + '</text>';
     }
 
     return '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + safeText + ' (' + w + 'x' + h + ')">\n' +
+      '  <title>' + safeText + ' (' + w + 'x' + h + ')</title>\n' +
       '  <rect width="100%" height="100%" fill="' + bg + '"/>\n' +
-      '  <g stroke="' + fg + '" stroke-width="' + strokeWidth + '" stroke-linecap="round">\n' +
+      '  <g aria-hidden="true" stroke="' + fg + '" stroke-width="' + strokeWidth + '" stroke-linecap="round">\n' +
       '    <line x1="0" y1="0" x2="' + xLeft + '" y2="' + yTop + '"/>\n' +
       '    <line x1="' + w + '" y1="0" x2="' + xRight + '" y2="' + yTop + '"/>\n' +
       '    <line x1="0" y1="' + h + '" x2="' + xLeft + '" y2="' + yBottom + '"/>\n' +
       '    <line x1="' + w + '" y1="' + h + '" x2="' + xRight + '" y2="' + yBottom + '"/>\n' +
       '  </g>\n' +
-      '  <text x="50%" y="' + textY + '" fill="' + fg + '" font-family="\'Geist\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif" font-size="' + fontSize + '" font-weight="700" letter-spacing="' + letterSpacing + 'px" text-anchor="middle" dominant-baseline="central">' + safeText + '</text>' + subtitleSvg + '\n' +
+      '  <text aria-hidden="true" x="50%" y="' + textY + '" fill="' + fg + '" font-family="\'Geist\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif" font-size="' + fontSize + '" font-weight="700" letter-spacing="' + letterSpacing + 'px" text-anchor="middle" dominant-baseline="central">' + safeText + '</text>' + subtitleSvg + '\n' +
       '</svg>';
   }
 

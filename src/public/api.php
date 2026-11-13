@@ -235,7 +235,7 @@ class SvgGenerator
         $subtitleSvg = '';
         if ($showDims && $minDim >= 48) {
             $subtitleSvg = sprintf(
-                "\n  <text x=\"50%%\" y=\"%s\" fill=\"%s\" fill-opacity=\"0.8\" font-family=\"'JetBrains Mono', ui-monospace, monospace\" font-size=\"%d\" font-weight=\"500\" text-anchor=\"middle\" dominant-baseline=\"central\">%d × %d</text>",
+                "\n  <text aria-hidden=\"true\" x=\"50%%\" y=\"%s\" fill=\"%s\" font-family=\"'JetBrains Mono', ui-monospace, monospace\" font-size=\"%d\" font-weight=\"500\" text-anchor=\"middle\" dominant-baseline=\"central\">%d × %d</text>",
                 $subY,
                 $fg,
                 $subFontSize,
@@ -246,14 +246,15 @@ class SvgGenerator
 
         return <<<SVG
 <svg xmlns="http://www.w3.org/2000/svg" width="{$w}" height="{$h}" viewBox="0 0 {$w} {$h}" role="img" aria-label="{$text} ({$w}x{$h})">
+  <title>{$text} ({$w}x{$h})</title>
   <rect width="100%" height="100%" fill="{$bg}"/>
-  <g stroke="{$fg}" stroke-width="{$strokeWidth}" stroke-linecap="round">
+  <g aria-hidden="true" stroke="{$fg}" stroke-width="{$strokeWidth}" stroke-linecap="round">
     <line x1="0" y1="0" x2="{$xLeft}" y2="{$yTop}"/>
     <line x1="{$w}" y1="0" x2="{$xRight}" y2="{$yTop}"/>
     <line x1="0" y1="{$h}" x2="{$xLeft}" y2="{$yBottom}"/>
     <line x1="{$w}" y1="{$h}" x2="{$xRight}" y2="{$yBottom}"/>
   </g>
-  <text x="50%" y="{$textY}" fill="{$fg}" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="{$fontSize}" font-weight="700" letter-spacing="{$letterSpacing}px" text-anchor="middle" dominant-baseline="central">{$text}</text>{$subtitleSvg}
+  <text aria-hidden="true" x="50%" y="{$textY}" fill="{$fg}" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="{$fontSize}" font-weight="700" letter-spacing="{$letterSpacing}px" text-anchor="middle" dominant-baseline="central">{$text}</text>{$subtitleSvg}
 </svg>
 SVG;
     }

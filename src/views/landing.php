@@ -83,6 +83,8 @@
   <?php endif; ?>
 </head>
 <body class="bg-background text-on-surface font-body-md antialiased selection:bg-surface-container-highest selection:text-primary min-h-screen flex flex-col justify-between">
+  <a class="sr-only focus:not-sr-only fixed top-2 left-2 z-50 px-3 py-2 rounded bg-primary text-on-primary font-label-md text-label-md font-medium shadow-2xl" href="#studio">Skip to main content</a>
+  <div id="srStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <!-- TOP NAVIGATION BAR -->
   <header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface/85 backdrop-blur-md border-b border-surface-container-high/40 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
@@ -105,23 +107,23 @@
         <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors py-1 px-1.5" href="#sdk">JS SDK</a>
         <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors py-1 px-1.5" href="#api">API Spec</a>
         <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors py-1 px-1.5" href="#seo-caching">SEO &amp; Caching</a>
-        <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors py-1 px-1.5" href="/llms.txt" target="_blank" rel="noopener">llms.txt</a>
+        <a aria-label="llms.txt (opens in new tab)" class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors py-1 px-1.5" href="/llms.txt" target="_blank" rel="noopener">llms.txt</a>
       </nav>
 
       <div class="flex items-center gap-space-sm shrink-0">
         <!-- Theme Mode Segmented Control -->
         <div aria-label="Theme mode switcher" class="flex items-center gap-0.5 p-0.5 rounded bg-surface-container border border-surface-container-highest/60" id="themeSegmentedControl" role="group">
-          <button aria-label="Light mode" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnLight" onclick="setTheme('light')" title="Light theme" type="button">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <button aria-label="Light mode" aria-pressed="false" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnLight" onclick="setTheme('light')" title="Light theme" type="button">
+            <svg aria-hidden="true" focusable="false" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
           </button>
-          <button aria-label="Follow system theme" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnSystem" onclick="setTheme('system')" title="System preference" type="button">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          <button aria-label="Follow system theme" aria-pressed="true" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnSystem" onclick="setTheme('system')" title="System preference" type="button">
+            <svg aria-hidden="true" focusable="false" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
           </button>
-          <button aria-label="Dark mode" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnDark" onclick="setTheme('dark')" title="Dark theme" type="button">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <button aria-label="Dark mode" aria-pressed="false" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnDark" onclick="setTheme('dark')" title="Dark theme" type="button">
+            <svg aria-hidden="true" focusable="false" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           </button>
         </div>
-        <a class="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface hover:text-primary font-label-sm text-label-sm transition-colors" href="/openapi.json" target="_blank" rel="noopener">OpenAPI</a>
+        <a aria-label="OpenAPI specification (opens in new tab)" class="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface hover:text-primary font-label-sm text-label-sm transition-colors" href="/openapi.json" target="_blank" rel="noopener">OpenAPI</a>
       </div>
     </div>
   </header>
@@ -187,11 +189,11 @@
           <div class="lg:col-span-7 flex flex-col gap-space-md p-space-md sm:p-space-lg rounded bg-surface-container-low border border-surface-container-highest/40">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-space-sm">
-                <span class="font-code-md text-code-md text-primary font-medium">01 // Configurator</span>
+                <h2 class="font-code-md text-code-md text-primary font-medium">01 // Configurator</h2>
                 <span class="text-on-surface-variant font-label-sm text-label-sm">Dynamic Vector Specs</span>
               </div>
-              <button data-agent-action="reset-defaults" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 py-1 px-1.5 rounded" onclick="resetDefaults()" type="button">
-                <span>↺ Reset</span>
+              <button data-agent-action="reset-defaults" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 py-1.5 px-2 rounded" onclick="resetDefaults()" type="button">
+                <span aria-hidden="true">↺</span><span>Reset</span>
               </button>
             </div>
 
@@ -202,18 +204,18 @@
                 <div class="col-span-1 sm:col-span-5 flex flex-col gap-1">
                   <label class="font-label-sm text-label-sm text-on-surface-variant" for="inputWidth">Width</label>
                   <div class="flex items-center bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
-                    <input aria-label="Width in pixels" class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputWidth" max="2048" min="1" oninput="handleDimensionChange('width')" type="number" value="600" />
-                    <span class="font-label-sm text-label-sm text-on-surface-variant">px</span>
+                    <input class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputWidth" max="2048" min="1" oninput="handleDimensionChange('width')" type="number" value="600" />
+                    <span aria-hidden="true" class="font-label-sm text-label-sm text-on-surface-variant">px</span>
                   </div>
                 </div>
-                <div class="hidden sm:flex col-span-2 items-center justify-center pt-4">
+                <div aria-hidden="true" class="hidden sm:flex col-span-2 items-center justify-center pt-4">
                   <span class="font-code-lg text-code-lg text-on-surface-variant">×</span>
                 </div>
                 <div class="col-span-1 sm:col-span-5 flex flex-col gap-1">
                   <label class="font-label-sm text-label-sm text-on-surface-variant" for="inputHeight">Height</label>
                   <div class="flex items-center bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
-                    <input aria-label="Height in pixels" class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputHeight" max="2048" min="1" oninput="handleDimensionChange('height')" type="number" value="400" />
-                    <span class="font-label-sm text-label-sm text-on-surface-variant">px</span>
+                    <input class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputHeight" max="2048" min="1" oninput="handleDimensionChange('height')" type="number" value="400" />
+                    <span aria-hidden="true" class="font-label-sm text-label-sm text-on-surface-variant">px</span>
                   </div>
                 </div>
               </div>
@@ -245,16 +247,16 @@
                   <label class="font-label-sm text-label-sm text-on-surface-variant" for="inputBg">Background (bg)</label>
                   <div class="flex items-center gap-2 bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
                     <input aria-label="Background color picker" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0" id="pickerBg" oninput="handleColorPickerChange('bg', this.value)" type="color" value="#9E9EA0" />
-                    <span class="font-code-md text-code-md text-on-surface-variant">#</span>
-                    <input aria-label="Background hex code" class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputBg" maxlength="6" oninput="handleHexInputChange('bg', this.value)" spellcheck="false" type="text" value="9E9EA0" />
+                    <span aria-hidden="true" class="font-code-md text-code-md text-on-surface-variant">#</span>
+                    <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputBg" maxlength="6" oninput="handleHexInputChange('bg', this.value)" spellcheck="false" type="text" value="9E9EA0" />
                   </div>
                 </div>
                 <div class="flex flex-col gap-1">
                   <label class="font-label-sm text-label-sm text-on-surface-variant" for="inputFg">Foreground / Crosshairs &amp; Text (fg)</label>
                   <div class="flex items-center gap-2 bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
                     <input aria-label="Foreground color picker" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0" id="pickerFg" oninput="handleColorPickerChange('fg', this.value)" type="color" value="#FFFFFF" />
-                    <span class="font-code-md text-code-md text-on-surface-variant">#</span>
-                    <input aria-label="Foreground hex code" class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputFg" maxlength="6" oninput="handleHexInputChange('fg', this.value)" spellcheck="false" type="text" value="FFFFFF" />
+                    <span aria-hidden="true" class="font-code-md text-code-md text-on-surface-variant">#</span>
+                    <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputFg" maxlength="6" oninput="handleHexInputChange('fg', this.value)" spellcheck="false" type="text" value="FFFFFF" />
                   </div>
                 </div>
               </div>
@@ -265,23 +267,23 @@
               <div class="flex items-center justify-between flex-wrap gap-2">
                 <label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider" for="inputText">Custom Text Overlay (?text=...)</label>
                 <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-                  <input class="sr-only peer" id="showDimensionsCheckbox" onchange="toggleShowDimensions()" type="checkbox" />
+                  <input class="sr-only peer" id="showDimensionsCheckbox" onchange="toggleShowDimensions()" role="switch" type="checkbox" />
                   <div class="w-8 h-4 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600 relative"></div>
                   <span class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface">Append Dimensions Subtitle (?dims=1)</span>
                 </label>
               </div>
               <div class="flex items-center bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-2 focus-within:ring-1 focus-within:ring-primary">
-                <span class="font-code-md text-on-surface-variant mr-2">T</span>
-                <input aria-label="Custom label text" class="w-full bg-transparent font-code-md text-code-md text-primary placeholder:text-on-surface-variant/50 focus:outline-none" id="inputText" maxlength="64" oninput="handleTextChange()" placeholder="e.g., Hero Banner, Avatar, or leave blank for default 'PLACEHOLGER'" type="text" value="" />
-                <button class="text-on-surface-variant hover:text-primary text-xs px-1.5 py-0.5 rounded transition-colors hidden" id="clearTextBtn" onclick="clearCustomText()" type="button">Clear</button>
+                <span aria-hidden="true" class="font-code-md text-on-surface-variant mr-2">T</span>
+                <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none" id="inputText" maxlength="64" oninput="handleTextChange()" placeholder="e.g., Hero Banner, Avatar, or leave blank for default 'PLACEHOLGER'" type="text" value="" />
+                <button class="text-on-surface-variant hover:text-primary text-xs px-2 py-1 rounded transition-colors hidden" id="clearTextBtn" onclick="clearCustomText()" type="button">Clear</button>
               </div>
               <div class="flex flex-wrap items-center gap-1.5 pt-1">
                 <span class="font-label-sm text-label-sm text-on-surface-variant">Quick Samples:</span>
-                <button class="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('PLACEHOLGER')" type="button">PLACEHOLGER</button>
-                <button class="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Hero Banner')" type="button">Hero Banner</button>
-                <button class="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Product Thumbnail')" type="button">Product Thumbnail</button>
-                <button class="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Wireframe Box')" type="button">Wireframe Box</button>
-                <button class="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Avatar / Profile')" type="button">Avatar / Profile</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('PLACEHOLGER')" type="button">PLACEHOLGER</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Hero Banner')" type="button">Hero Banner</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Product Thumbnail')" type="button">Product Thumbnail</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Wireframe Box')" type="button">Wireframe Box</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Avatar / Profile')" type="button">Avatar / Profile</button>
               </div>
             </div>
 
@@ -328,7 +330,7 @@
             <div class="flex flex-wrap items-center justify-between gap-space-sm pt-space-xs pb-space-xs">
               <div class="flex items-center gap-space-md">
                 <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-                  <input class="sr-only peer" id="lockAspectCheckbox" onchange="toggleLockAspect()" type="checkbox" />
+                  <input class="sr-only peer" id="lockAspectCheckbox" onchange="toggleLockAspect()" role="switch" type="checkbox" />
                   <div class="w-8 h-4 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600 relative"></div>
                   <span class="font-label-sm text-label-sm text-on-surface">Lock Aspect Ratio</span>
                 </label>
@@ -351,7 +353,7 @@
                   <button data-agent-action="copy-url" class="px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-sm text-label-sm transition-colors flex items-center gap-1" id="copyUrlBtn" onclick="copyToClipboard('https://placeholger.hellinger.wtf/' + document.getElementById('urlPath').innerText, this)" type="button">
                     <span>Copy URL</span>
                   </button>
-                  <a class="px-2 py-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors inline-flex items-center justify-center font-label-sm text-label-sm" href="/600/400/9e9ea0/ffffff" id="externalLinkBtn" rel="noopener" target="_blank" title="Open SVG endpoint directly in new tab">↗</a>
+                  <a aria-label="Open SVG endpoint directly in new tab" class="px-2.5 py-1.5 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors inline-flex items-center justify-center font-label-sm text-label-sm" href="/600/400/9e9ea0/ffffff" id="externalLinkBtn" rel="noopener" target="_blank" title="Open SVG endpoint directly in new tab"><span aria-hidden="true">↗</span></a>
                 </div>
               </div>
             </div>
@@ -381,21 +383,21 @@
           <div class="lg:col-span-5 flex flex-col gap-space-sm">
             <div class="flex items-center justify-between px-space-xs">
               <div class="flex items-center gap-space-xs">
-                <span class="font-code-md text-code-md text-primary font-medium">02 // Stage Preview</span>
+                <h2 class="font-code-md text-code-md text-primary font-medium">02 // Stage Preview</h2>
                 <span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">LIVE VECTOR</span>
               </div>
               <div class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant">
-                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span aria-hidden="true" class="w-2 h-2 rounded-full bg-emerald-400"></span>
                 <span>Zero-Disk Render</span>
               </div>
             </div>
 
             <!-- Preview Viewport -->
             <div class="relative w-full aspect-square rounded bg-surface-container-lowest p-space-md flex flex-col items-center justify-center overflow-hidden border border-surface-container-highest/40">
-              <div class="absolute top-2 left-3 font-code-md text-[10px] text-on-surface-variant select-none tracking-widest">X: 000 | Y: 000</div>
-              <div class="absolute top-2 right-3 font-code-md text-[10px] text-on-surface-variant select-none">SVG / VECTOR</div>
-              <div class="absolute bottom-2 left-3 font-code-md text-[10px] text-on-surface-variant select-none">STATUS: 200 OK</div>
-              <div class="absolute bottom-2 right-3 font-code-md text-[10px] text-on-surface-variant select-none" id="previewHudDim">600 × 400</div>
+              <div aria-hidden="true" class="absolute top-2 left-3 font-code-md text-[10px] text-on-surface-variant select-none tracking-widest">X: 000 | Y: 000</div>
+              <div aria-hidden="true" class="absolute top-2 right-3 font-code-md text-[10px] text-on-surface-variant select-none">SVG / VECTOR</div>
+              <div aria-hidden="true" class="absolute bottom-2 left-3 font-code-md text-[10px] text-on-surface-variant select-none">STATUS: 200 OK</div>
+              <div aria-hidden="true" class="absolute bottom-2 right-3 font-code-md text-[10px] text-on-surface-variant select-none" id="previewHudDim">600 × 400</div>
 
               <div class="relative max-w-full max-h-full transition-all duration-150 flex items-center justify-center shadow-2xl" id="previewCanvasWrapper" style="width: 90%; height: 60%;">
                 <div class="w-full h-full flex items-center justify-center overflow-hidden rounded-sm" id="previewSvgHost">
@@ -444,7 +446,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
             <div class="p-space-md rounded bg-surface-container-low border border-surface-container-highest/40 flex flex-col gap-space-sm">
-              <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">1. Web Component</span>
+              <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-wider">1. Web Component</h3>
               <pre class="p-space-sm rounded bg-surface-container-lowest font-code-md text-xs text-on-surface overflow-x-auto"><code>&lt;script src="/js/placeholger.js" defer&gt;&lt;/script&gt;
 
 &lt;place-holger
@@ -456,7 +458,7 @@
             </div>
 
             <div class="p-space-md rounded bg-surface-container-low border border-surface-container-highest/40 flex flex-col gap-space-sm">
-              <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">2. Auto-Hydrated &lt;img&gt;</span>
+              <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-wider">2. Auto-Hydrated &lt;img&gt;</h3>
               <pre class="p-space-sm rounded bg-surface-container-lowest font-code-md text-xs text-on-surface overflow-x-auto"><code>&lt;img
   data-placeholger="600/400/18181b/22c55e?text=Instant+Data+URI"
   alt="Client Generated"
@@ -464,7 +466,7 @@
             </div>
 
             <div class="p-space-md rounded bg-surface-container-low border border-surface-container-highest/40 flex flex-col gap-space-sm">
-              <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">3. Live Client Demo</span>
+              <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-wider">3. Live Client Demo</h3>
               <div class="flex items-center justify-center bg-surface-container-lowest p-2 rounded border border-surface-container-highest/30">
                 <place-holger w="360" h="160" bg="0f172a" fg="38bdf8" text="CLIENT ON-THE-FLY" dims></place-holger>
               </div>
@@ -475,7 +477,7 @@
           <div class="p-space-md rounded bg-surface-container-low border border-surface-container-highest/40 flex flex-col gap-space-md" id="self-host">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
               <div class="flex flex-col gap-space-xs">
-                <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">Self-host in your own project</span>
+                <h3 class="font-label-sm text-label-sm text-primary uppercase tracking-wider">Self-host in your own project</h3>
                 <p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">
                   <code class="font-code-md text-primary">placeholger.js</code> is a single dependency-free file (~1.8 KB) that runs entirely in the browser. Remote hotlinking is blocked (<code class="font-code-md text-primary">403 Forbidden</code>), so save a local copy into your project's static assets:
                 </p>
@@ -495,7 +497,7 @@ curl -fsSL -o public/js/placeholger.js https://placeholger.hellinger.wtf/placeho
             </div>
 
             <div class="flex flex-col gap-space-sm">
-              <span class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider">Component attributes</span>
+              <h3 class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider">Component attributes</h3>
               <div class="flex flex-col divide-y divide-surface-container-high/50 font-body-sm text-body-sm">
                 <div class="py-2 flex items-start justify-between gap-space-sm">
                   <span class="font-code-md text-code-md text-primary">w / h</span>
@@ -681,12 +683,12 @@ curl -fsSL -o public/js/placeholger.js https://placeholger.hellinger.wtf/placeho
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-space-lg font-label-sm text-label-sm text-on-surface-variant">
-        <a class="hover:text-primary transition-colors" href="#studio">Configurator</a>
-        <a class="hover:text-primary transition-colors" href="#sdk">Client JS SDK</a>
-        <a class="hover:text-primary transition-colors" href="#api">API Spec</a>
-        <a class="hover:text-primary transition-colors" href="/llms.txt">llms.txt</a>
-        <a class="hover:text-primary transition-colors" href="/openapi.json">openapi.json</a>
-        <a class="hover:text-primary transition-colors" href="/robots.txt">robots.txt</a>
+        <a class="py-1.5 inline-flex items-center hover:text-primary transition-colors" href="#studio">Configurator</a>
+        <a class="py-1.5 inline-flex items-center hover:text-primary transition-colors" href="#sdk">Client JS SDK</a>
+        <a class="py-1.5 inline-flex items-center hover:text-primary transition-colors" href="#api">API Spec</a>
+        <a class="py-1.5 inline-flex items-center hover:text-primary transition-colors" href="/llms.txt">llms.txt</a>
+        <a class="py-1.5 inline-flex items-center hover:text-primary transition-colors" href="/openapi.json">openapi.json</a>
+        <a class="py-1.5 inline-flex items-center hover:text-primary transition-colors" href="/robots.txt">robots.txt</a>
       </div>
       <div class="font-label-sm text-label-sm text-on-surface-variant">© <?= date('Y') ?> placeholger.hellinger.wtf</div>
     </div>
