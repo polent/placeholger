@@ -709,6 +709,8 @@ curl -fsSL -o public/js/placeholger.js https://placeholger.hellinger.wtf/placeho
         <a class="py-1.5 inline-flex items-center hover:text-primary transition-colors" href="/llms.txt">llms.txt</a>
         <a class="py-1.5 inline-flex items-center hover:text-primary transition-colors" href="/openapi.json">openapi.json</a>
         <a class="py-1.5 inline-flex items-center hover:text-primary transition-colors" href="/robots.txt">robots.txt</a>
+        <a class="py-1.5 inline-flex items-center hover:text-primary transition-colors" href="https://github.com/polent/placeholger" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a class="py-1.5 inline-flex items-center hover:text-primary transition-colors" href="https://polente.de/impressum" target="_blank" rel="noopener noreferrer">Imprint</a>
       </div>
       <div class="font-label-sm text-label-sm text-on-surface-variant">© <?= date('Y') ?> placeholger.hellinger.wtf</div>
     </div>
