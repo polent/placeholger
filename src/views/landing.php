@@ -666,8 +666,8 @@ curl -fsSL -o public/js/placeholger.js https://placeholger.hellinger.wtf/placeho
         <section aria-label="Service Benchmarks" class="grid grid-cols-1 md:grid-cols-4 gap-space-sm p-space-md rounded bg-surface-container-low border border-surface-container-highest/40 items-center">
           <div class="flex flex-col gap-1 border-b md:border-b-0 md:border-r border-surface-container-highest/60 pb-3 md:pb-0 md:pr-space-md">
             <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Storage Footprint</span>
-            <span class="font-headline-md text-headline-md text-primary font-bold">0 Files / 0 B</span>
-            <span class="font-body-sm text-body-sm text-on-surface-variant">In-Memory String Templating</span>
+            <span class="font-headline-md text-headline-md text-primary font-bold">0 B API &middot; 1 JS</span>
+            <span class="font-body-sm text-body-sm text-on-surface-variant">In-memory SVGs; self-host placeholger.js</span>
           </div>
           <div class="flex flex-col gap-1 border-b md:border-b-0 md:border-r border-surface-container-highest/60 pb-3 md:pb-0 md:pr-space-md">
             <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Cold Invocation</span>
