@@ -8,10 +8,30 @@
   var currentThemePreference = 'system';
   var currentAspectRatio = 600 / 400;
   var isAspectLocked = false;
-  var showDimensions = false;
+  var textEncoder = typeof TextEncoder !== 'undefined' ? new TextEncoder() : null;
+  var colorSchemeMq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  var els = null;
+
+  function cacheElements() {
+    if (els) return els;
+    var ids = [
+      'srStatus', 'themeSegmentedControl', 'themeBtnLight', 'themeBtnDark', 'themeBtnSystem',
+      'configuratorForm', 'inputWidth', 'inputHeight', 'rangeWidth', 'rangeHeight',
+      'sliderWidthVal', 'sliderHeightVal', 'pickerBg', 'inputBg', 'pickerFg', 'inputFg',
+      'showDimensionsCheckbox', 'inputText', 'clearTextBtn', 'lockAspectCheckbox',
+      'urlPath', 'externalLinkBtn', 'quickEmbedCode', 'previewHudDim',
+      'previewRatioBadge', 'previewSvgHost', 'previewBytesBadge', 'calculatedKB',
+      'previewCanvasWrapper'
+    ];
+    els = {};
+    for (var i = 0; i < ids.length; i++) {
+      els[ids[i]] = document.getElementById(ids[i]);
+    }
+    return els;
+  }
 
   function announceStatus(message) {
-    var statusEl = document.getElementById('srStatus');
+    var statusEl = els ? els.srStatus : document.getElementById('srStatus');
     if (!statusEl) return;
     statusEl.textContent = '';
     setTimeout(function () {
@@ -20,287 +40,249 @@
   }
 
   function getSystemTheme() {
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return colorSchemeMq && colorSchemeMq.matches ? 'dark' : 'light';
   }
 
   function applyTheme(effectiveTheme) {
-    var root = document.documentElement;
+    var cl = document.documentElement.classList;
     if (effectiveTheme === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
+      cl.add('dark');
+      cl.remove('light');
     } else {
-      root.classList.add('light');
-      root.classList.remove('dark');
+      cl.add('light');
+      cl.remove('dark');
     }
   }
 
   function updateThemeButtons(pref) {
-    var btnLight = document.getElementById('themeBtnLight');
-    var btnDark = document.getElementById('themeBtnDark');
-    var btnSys = document.getElementById('themeBtnSystem');
-    if (!btnLight || !btnDark || !btnSys) return;
+    var e = cacheElements();
+    if (!e.themeBtnLight || !e.themeBtnDark || !e.themeBtnSystem) return;
 
     var inactiveClass = 'w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center';
     var activeClass = 'w-7 h-7 rounded bg-surface-container-highest text-primary font-medium shadow-sm transition-colors flex items-center justify-center';
 
-    btnLight.className = pref === 'light' ? activeClass : inactiveClass;
-    btnDark.className = pref === 'dark' ? activeClass : inactiveClass;
-    btnSys.className = pref === 'system' ? activeClass : inactiveClass;
+    e.themeBtnLight.className = pref === 'light' ? activeClass : inactiveClass;
+    e.themeBtnDark.className = pref === 'dark' ? activeClass : inactiveClass;
+    e.themeBtnSystem.className = pref === 'system' ? activeClass : inactiveClass;
 
-    btnLight.setAttribute('aria-pressed', pref === 'light' ? 'true' : 'false');
-    btnDark.setAttribute('aria-pressed', pref === 'dark' ? 'true' : 'false');
-    btnSys.setAttribute('aria-pressed', pref === 'system' ? 'true' : 'false');
+    e.themeBtnLight.setAttribute('aria-pressed', pref === 'light' ? 'true' : 'false');
+    e.themeBtnDark.setAttribute('aria-pressed', pref === 'dark' ? 'true' : 'false');
+    e.themeBtnSystem.setAttribute('aria-pressed', pref === 'system' ? 'true' : 'false');
   }
 
-  window.setTheme = function (pref) {
+  function setTheme(pref) {
     currentThemePreference = pref;
     try {
       localStorage.setItem('placeholger_theme', pref);
-    } catch (e) {}
+    } catch (err) {}
 
-    if (pref === 'system') {
-      applyTheme(getSystemTheme());
-    } else {
-      applyTheme(pref);
-    }
+    applyTheme(pref === 'system' ? getSystemTheme() : pref);
     updateThemeButtons(pref);
-  };
+  }
 
-  (function initTheme() {
+  function initTheme() {
     var saved = 'system';
     try {
       saved = localStorage.getItem('placeholger_theme') || 'system';
-    } catch (e) {}
+    } catch (err) {}
     currentThemePreference = saved;
     applyTheme(saved === 'system' ? getSystemTheme() : saved);
     updateThemeButtons(saved);
 
-    if (window.matchMedia) {
-      var mq = window.matchMedia('(prefers-color-scheme: dark)');
-      if (mq.addEventListener) {
-        mq.addEventListener('change', function (e) {
-          if (currentThemePreference === 'system') {
-            applyTheme(e.matches ? 'dark' : 'light');
-          }
-        });
-      }
+    if (colorSchemeMq && colorSchemeMq.addEventListener) {
+      colorSchemeMq.addEventListener('change', function (ev) {
+        if (currentThemePreference === 'system') {
+          applyTheme(ev.matches ? 'dark' : 'light');
+        }
+      });
     }
-  })();
-
-  function getState() {
-    var wInput = document.getElementById('inputWidth');
-    var hInput = document.getElementById('inputHeight');
-    var bgInput = document.getElementById('inputBg');
-    var fgInput = document.getElementById('inputFg');
-    var textInput = document.getElementById('inputText');
-    var dimsCb = document.getElementById('showDimensionsCheckbox');
-
-    var w = Math.min(2048, Math.max(1, parseInt(wInput ? wInput.value : 600, 10) || 600));
-    var h = Math.min(2048, Math.max(1, parseInt(hInput ? hInput.value : 400, 10) || 400));
-    var bg = window.Placeholger ? window.Placeholger.sanitizeHex(bgInput ? bgInput.value : '9E9EA0', '9E9EA0') : '9E9EA0';
-    var fg = window.Placeholger ? window.Placeholger.sanitizeHex(fgInput ? fgInput.value : 'FFFFFF', 'FFFFFF') : 'FFFFFF';
-    var rawText = textInput ? textInput.value.trim() : '';
-    var dims = dimsCb ? Boolean(dimsCb.checked) : showDimensions;
-
-    return { w: w, h: h, bg: bg, fg: fg, rawText: rawText, text: rawText || 'PLACEHOLGER', showDims: dims };
   }
 
-  window.handleDimensionChange = function (changedAxis) {
-    var wInput = document.getElementById('inputWidth');
-    var hInput = document.getElementById('inputHeight');
-    var w = parseInt(wInput.value, 10) || 1;
-    var h = parseInt(hInput.value, 10) || 1;
+  function expandHex3(clean) {
+    return clean.length === 3
+      ? clean[0] + clean[0] + clean[1] + clean[1] + clean[2] + clean[2]
+      : clean;
+  }
 
-    if (w > 2048) { w = 2048; wInput.value = 2048; }
-    if (h > 2048) { h = 2048; hInput.value = 2048; }
-    if (w < 1) { w = 1; wInput.value = 1; }
-    if (h < 1) { h = 1; hInput.value = 1; }
+  function getState() {
+    var e = cacheElements();
+    var w = Math.min(2048, Math.max(1, parseInt(e.inputWidth ? e.inputWidth.value : 600, 10) || 600));
+    var h = Math.min(2048, Math.max(1, parseInt(e.inputHeight ? e.inputHeight.value : 400, 10) || 400));
+    var bg = window.Placeholger ? window.Placeholger.sanitizeHex(e.inputBg ? e.inputBg.value : '9E9EA0', '9E9EA0') : '9E9EA0';
+    var fg = window.Placeholger ? window.Placeholger.sanitizeHex(e.inputFg ? e.inputFg.value : 'FFFFFF', 'FFFFFF') : 'FFFFFF';
+    var rawText = e.inputText ? e.inputText.value.trim() : '';
+    var showDims = e.showDimensionsCheckbox ? Boolean(e.showDimensionsCheckbox.checked) : false;
+
+    return { w: w, h: h, bg: bg, fg: fg, rawText: rawText, text: rawText || 'PLACEHOLGER', showDims: showDims };
+  }
+
+  function handleDimensionChange(changedAxis) {
+    var e = cacheElements();
+    var w = Math.min(2048, Math.max(1, parseInt(e.inputWidth.value, 10) || 1));
+    var h = Math.min(2048, Math.max(1, parseInt(e.inputHeight.value, 10) || 1));
 
     if (isAspectLocked) {
       if (changedAxis === 'height') {
         w = Math.min(2048, Math.max(1, Math.round(h * currentAspectRatio)));
-        wInput.value = w;
       } else {
         h = Math.min(2048, Math.max(1, Math.round(w / currentAspectRatio)));
-        hInput.value = h;
       }
     }
 
-    updateUI(w, h);
-  };
+    e.inputWidth.value = w;
+    e.inputHeight.value = h;
+    updateUI();
+  }
 
-  window.syncRangeToInput = function (axis) {
+  function syncRangeToInput(axis) {
+    var e = cacheElements();
     if (axis === 'width') {
-      document.getElementById('inputWidth').value = document.getElementById('rangeWidth').value;
+      e.inputWidth.value = e.rangeWidth.value;
     } else {
-      document.getElementById('inputHeight').value = document.getElementById('rangeHeight').value;
+      e.inputHeight.value = e.rangeHeight.value;
     }
-    window.handleDimensionChange(axis);
-  };
+    handleDimensionChange(axis);
+  }
 
-  window.applyPreset = function (w, h) {
-    document.getElementById('inputWidth').value = w;
-    document.getElementById('inputHeight').value = h;
+  function applyPreset(w, h) {
+    var e = cacheElements();
+    e.inputWidth.value = w;
+    e.inputHeight.value = h;
     currentAspectRatio = w / h;
-    updateUI(w, h);
-  };
+    updateUI();
+  }
 
-  window.handleHexInputChange = function (type, value) {
-    var clean = (value || '').replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
-    if (type === 'bg') {
-      document.getElementById('inputBg').value = clean.toUpperCase();
-      if (clean.length === 3 || clean.length === 6) {
-        var fullBg = clean.length === 3 ? clean.split('').map(function (c) { return c + c; }).join('') : clean;
-        document.getElementById('pickerBg').value = '#' + fullBg;
-      }
-    } else {
-      document.getElementById('inputFg').value = clean.toUpperCase();
-      if (clean.length === 3 || clean.length === 6) {
-        var fullFg = clean.length === 3 ? clean.split('').map(function (c) { return c + c; }).join('') : clean;
-        document.getElementById('pickerFg').value = '#' + fullFg;
-      }
+  function syncHexInput(type, value, skipUpdate) {
+    var e = cacheElements();
+    var clean = (value || '').replace(/[^0-9a-fA-F]/g, '').slice(0, 6).toUpperCase();
+    var inputEl = type === 'bg' ? e.inputBg : e.inputFg;
+    var pickerEl = type === 'bg' ? e.pickerBg : e.pickerFg;
+
+    if (inputEl) inputEl.value = clean;
+    if (pickerEl && (clean.length === 3 || clean.length === 6)) {
+      pickerEl.value = '#' + expandHex3(clean);
     }
-    var s = getState();
-    updateUI(s.w, s.h);
-  };
+    if (!skipUpdate) updateUI();
+  }
 
-  window.handleColorPickerChange = function (type, value) {
+  function handleColorPickerChange(type, value) {
+    var e = cacheElements();
     var hex = (value || '').replace('#', '').toUpperCase();
-    if (type === 'bg') {
-      document.getElementById('inputBg').value = hex;
+    var inputEl = type === 'bg' ? e.inputBg : e.inputFg;
+    if (inputEl) inputEl.value = hex;
+    updateUI();
+  }
+
+  function applyColorPreset(bg, fg) {
+    var e = cacheElements();
+    var bgUp = bg.toUpperCase();
+    var fgUp = fg.toUpperCase();
+    e.inputBg.value = bgUp;
+    e.pickerBg.value = '#' + bgUp;
+    e.inputFg.value = fgUp;
+    e.pickerFg.value = '#' + fgUp;
+    updateUI();
+  }
+
+  function updateClearBtnVisibility(textVal) {
+    var e = cacheElements();
+    if (!e.clearTextBtn) return;
+    if (textVal.trim() !== '') {
+      e.clearTextBtn.classList.remove('hidden');
     } else {
-      document.getElementById('inputFg').value = hex;
+      e.clearTextBtn.classList.add('hidden');
     }
-    var s = getState();
-    updateUI(s.w, s.h);
-  };
+  }
 
-  window.applyColorPreset = function (bg, fg) {
-    document.getElementById('inputBg').value = bg.toUpperCase();
-    document.getElementById('pickerBg').value = '#' + bg;
-    document.getElementById('inputFg').value = fg.toUpperCase();
-    document.getElementById('pickerFg').value = '#' + fg;
-    var s = getState();
-    updateUI(s.w, s.h);
-  };
+  function handleTextChange() {
+    var e = cacheElements();
+    updateClearBtnVisibility(e.inputText.value);
+    updateUI();
+  }
 
-  window.handleTextChange = function () {
-    var textVal = document.getElementById('inputText').value;
-    var clearBtn = document.getElementById('clearTextBtn');
-    if (clearBtn) {
-      if (textVal.trim() !== '') {
-        clearBtn.classList.remove('hidden');
-      } else {
-        clearBtn.classList.add('hidden');
-      }
-    }
-    var s = getState();
-    updateUI(s.w, s.h);
-  };
+  function clearCustomText() {
+    var e = cacheElements();
+    e.inputText.value = '';
+    updateClearBtnVisibility('');
+    updateUI();
+    e.inputText.focus();
+  }
 
-  window.clearCustomText = function () {
-    var inputEl = document.getElementById('inputText');
-    inputEl.value = '';
-    var clearBtn = document.getElementById('clearTextBtn');
-    if (clearBtn) clearBtn.classList.add('hidden');
-    var s = getState();
-    updateUI(s.w, s.h);
-    inputEl.focus();
-  };
+  function applySampleText(sample) {
+    var e = cacheElements();
+    e.inputText.value = sample;
+    updateClearBtnVisibility(sample);
+    updateUI();
+  }
 
-  window.applySampleText = function (sample) {
-    document.getElementById('inputText').value = sample;
-    var clearBtn = document.getElementById('clearTextBtn');
-    if (clearBtn) clearBtn.classList.remove('hidden');
-    var s = getState();
-    updateUI(s.w, s.h);
-  };
-
-  window.toggleShowDimensions = function () {
-    showDimensions = document.getElementById('showDimensionsCheckbox').checked;
-    var s = getState();
-    updateUI(s.w, s.h);
-  };
-
-  window.toggleLockAspect = function () {
-    var cb = document.getElementById('lockAspectCheckbox');
-    isAspectLocked = cb.checked;
+  function toggleLockAspect() {
+    var e = cacheElements();
+    isAspectLocked = e.lockAspectCheckbox.checked;
     if (isAspectLocked) {
       var s = getState();
       currentAspectRatio = s.w / s.h;
     }
-  };
+  }
 
-  window.resetDefaults = function () {
-    document.getElementById('inputWidth').value = 600;
-    document.getElementById('inputHeight').value = 400;
-    document.getElementById('inputBg').value = '9E9EA0';
-    document.getElementById('pickerBg').value = '#9E9EA0';
-    document.getElementById('inputFg').value = 'FFFFFF';
-    document.getElementById('pickerFg').value = '#FFFFFF';
-    document.getElementById('inputText').value = '';
-    var clearBtn = document.getElementById('clearTextBtn');
-    if (clearBtn) clearBtn.classList.add('hidden');
-    document.getElementById('showDimensionsCheckbox').checked = false;
-    showDimensions = false;
-    document.getElementById('lockAspectCheckbox').checked = false;
+  function resetDefaults() {
+    var e = cacheElements();
+    e.inputWidth.value = 600;
+    e.inputHeight.value = 400;
+    e.inputBg.value = '9E9EA0';
+    e.pickerBg.value = '#9E9EA0';
+    e.inputFg.value = 'FFFFFF';
+    e.pickerFg.value = '#FFFFFF';
+    e.inputText.value = '';
+    updateClearBtnVisibility('');
+    e.showDimensionsCheckbox.checked = false;
+    e.lockAspectCheckbox.checked = false;
     isAspectLocked = false;
     currentAspectRatio = 1.5;
 
-    updateUI(600, 400);
+    updateUI();
     announceStatus('Configurator reset to defaults');
-  };
-
-  function buildPathQuery(s) {
-    var bgLower = s.bg.toLowerCase();
-    var fgLower = s.fg.toLowerCase();
-    var path = s.w + '/' + s.h + '/' + bgLower + '/' + fgLower;
-    var queryParams = [];
-    if (s.rawText) {
-      queryParams.push('text=' + encodeURIComponent(s.rawText));
-    }
-    if (s.showDims) {
-      queryParams.push('dims=1');
-    }
-    if (queryParams.length > 0) {
-      path += '?' + queryParams.join('&');
-    }
-    return path;
   }
 
-  function updateUI(w, h) {
-    var s = getState();
-    s.w = w || s.w;
-    s.h = h || s.h;
+  function buildPathQuery(s) {
+    var path = s.w + '/' + s.h + '/' + s.bg.toLowerCase() + '/' + s.fg.toLowerCase();
+    if (!s.rawText && !s.showDims) return path;
+    var query = s.rawText ? 'text=' + encodeURIComponent(s.rawText) : '';
+    if (s.showDims) {
+      query += (query ? '&' : '') + 'dims=1';
+    }
+    return path + '?' + query;
+  }
 
-    document.getElementById('rangeWidth').value = Math.min(s.w, 1920);
-    document.getElementById('rangeHeight').value = Math.min(s.h, 1080);
-    document.getElementById('sliderWidthVal').textContent = s.w + 'px';
-    document.getElementById('sliderHeightVal').textContent = s.h + 'px';
+  function byteLength(str) {
+    if (!str) return 280;
+    return textEncoder ? textEncoder.encode(str).length : str.length;
+  }
+
+  function updateUI(precomputedState, skipSvgReplace) {
+    var e = cacheElements();
+    var s = precomputedState || getState();
+
+    e.rangeWidth.value = Math.min(s.w, 1920);
+    e.rangeHeight.value = Math.min(s.h, 1080);
+    e.sliderWidthVal.textContent = s.w + 'px';
+    e.sliderHeightVal.textContent = s.h + 'px';
 
     var pathText = buildPathQuery(s);
     var fullUrl = BASE_URL + '/' + pathText;
-    var localHref = '/' + pathText;
 
-    document.getElementById('urlPath').textContent = pathText;
-    var extBtn = document.getElementById('externalLinkBtn');
-    if (extBtn) extBtn.href = localHref;
-
-    var quickEmbed = document.getElementById('quickEmbedCode');
-    if (quickEmbed) {
-      quickEmbed.textContent = '<img src="' + fullUrl + '" width="' + s.w + '" height="' + s.h + '" alt="' + s.text + '" />';
+    e.urlPath.textContent = pathText;
+    if (e.externalLinkBtn) e.externalLinkBtn.href = '/' + pathText;
+    if (e.quickEmbedCode) {
+      e.quickEmbedCode.textContent = '<img src="' + fullUrl + '" width="' + s.w + '" height="' + s.h + '" alt="' + s.text + '" />';
     }
 
-    document.getElementById('previewHudDim').textContent = s.w + ' × ' + s.h;
-    var ratioVal = (s.w / s.h).toFixed(2);
-    document.getElementById('previewRatioBadge').textContent = ratioVal + ':1 (' + s.w + ':' + s.h + ')';
+    e.previewHudDim.textContent = s.w + ' × ' + s.h;
+    e.previewRatioBadge.textContent = (s.w / s.h).toFixed(2) + ':1 (' + s.w + ':' + s.h + ')';
 
-    // Render authentic SVG inside the Stage Preview using Placeholger SDK
     var svgMarkup = window.Placeholger ? window.Placeholger.svg(s) : '';
-    var stageHost = document.getElementById('previewSvgHost');
-    if (stageHost && svgMarkup) {
-      stageHost.innerHTML = svgMarkup;
-      var renderedSvg = stageHost.querySelector('svg');
+    if (!skipSvgReplace && e.previewSvgHost && svgMarkup) {
+      e.previewSvgHost.innerHTML = svgMarkup;
+      var renderedSvg = e.previewSvgHost.firstElementChild;
       if (renderedSvg) {
         renderedSvg.setAttribute('width', '100%');
         renderedSvg.setAttribute('height', '100%');
@@ -308,25 +290,25 @@
       }
     }
 
-    var byteSize = svgMarkup ? new Blob([svgMarkup]).size : 280;
-    document.getElementById('previewBytesBadge').textContent = byteSize.toLocaleString() + ' bytes';
-    document.getElementById('calculatedKB').textContent = byteSize + ' B';
+    var bytes = byteLength(svgMarkup);
+    e.previewBytesBadge.textContent = bytes.toLocaleString() + ' bytes';
+    e.calculatedKB.textContent = bytes + ' B';
 
-    // Aspect ratio adjustment for preview frame
-    var wrapper = document.getElementById('previewCanvasWrapper');
-    if (wrapper) {
+    if (e.previewCanvasWrapper) {
       var imgAspect = s.w / s.h;
       if (imgAspect >= 1) {
-        wrapper.style.width = '90%';
-        wrapper.style.height = Math.max(20, Math.min(90, 90 / imgAspect)) + '%';
+        e.previewCanvasWrapper.style.width = '90%';
+        e.previewCanvasWrapper.style.height = Math.max(20, Math.min(90, 90 / imgAspect)) + '%';
       } else {
-        wrapper.style.height = '90%';
-        wrapper.style.width = Math.max(20, Math.min(90, 90 * imgAspect)) + '%';
+        e.previewCanvasWrapper.style.height = '90%';
+        e.previewCanvasWrapper.style.width = Math.max(20, Math.min(90, 90 * imgAspect)) + '%';
       }
     }
+
+    return svgMarkup;
   }
 
-  window.copyToClipboard = function (text, btnElement) {
+  function copyToClipboard(text, btnElement) {
     if (!navigator.clipboard) return;
     navigator.clipboard.writeText(text).then(function () {
       announceStatus('Copied to clipboard');
@@ -339,17 +321,16 @@
     }).catch(function () {
       announceStatus('Copy to clipboard failed');
     });
-  };
+  }
 
-  window.copySnippet = function (elementId, btnElement) {
+  function copySnippet(elementId, btnElement) {
     var el = document.getElementById(elementId);
-    if (el) window.copyToClipboard(el.textContent, btnElement);
-  };
+    if (el) copyToClipboard(el.textContent, btnElement);
+  }
 
-  window.copyMarkup = function (format, btnElement) {
+  function copyMarkup(format, btnElement) {
     var s = getState();
-    var path = buildPathQuery(s);
-    var url = BASE_URL + '/' + path;
+    var url = BASE_URL + '/' + buildPathQuery(s);
     var snippet = '';
 
     if (format === 'img') {
@@ -364,13 +345,19 @@
         (s.showDims ? ' dims' : '') + '></place-holger>';
     }
 
-    window.copyToClipboard(snippet, btnElement);
-  };
+    copyToClipboard(snippet, btnElement);
+  }
 
-  /**
-   * Direct Client-Side Download of SVG or Rasterized PNG from the Browser Canvas
-   */
-  window.downloadPlaceholder = function (format) {
+  function triggerDownload(href, filename) {
+    var a = document.createElement('a');
+    a.href = href;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  function downloadPlaceholder(format) {
     var s = getState();
     var svgString = window.Placeholger.svg(s);
     var fileBase = 'placeholger-' + s.w + 'x' + s.h + '-' + s.bg.toLowerCase();
@@ -396,49 +383,37 @@
       img.onload = function () {
         ctx.drawImage(img, 0, 0, s.w, s.h);
         URL.revokeObjectURL(domUrl);
-        var pngUrl = canvas.toDataURL('image/png');
-        triggerDownload(pngUrl, fileBase + '.png');
+        triggerDownload(canvas.toDataURL('image/png'), fileBase + '.png');
         announceStatus('PNG export started');
       };
       img.src = domUrl;
     }
-  };
-
-  function triggerDownload(href, filename) {
-    var a = document.createElement('a');
-    a.href = href;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
   }
 
-  /**
-   * Agentic Browsing & WebMCP Tool Registration
-   * Allows browser-based AI agents to deterministically generate & configure placeholders.
-   */
   function executeAgentTool(args) {
+    var e = cacheElements();
     var opts = args || {};
-    if (opts.width || opts.w) document.getElementById('inputWidth').value = opts.width || opts.w;
-    if (opts.height || opts.h) document.getElementById('inputHeight').value = opts.height || opts.h;
-    if (opts.bg) window.handleHexInputChange('bg', opts.bg);
-    if (opts.fg) window.handleHexInputChange('fg', opts.fg);
+    if (opts.width || opts.w) e.inputWidth.value = opts.width || opts.w;
+    if (opts.height || opts.h) e.inputHeight.value = opts.height || opts.h;
+    if (opts.bg) syncHexInput('bg', opts.bg, true);
+    if (opts.fg) syncHexInput('fg', opts.fg, true);
     if (typeof opts.text === 'string') {
-      document.getElementById('inputText').value = opts.text;
+      e.inputText.value = opts.text;
+      updateClearBtnVisibility(opts.text);
     }
     if (typeof opts.dims === 'boolean') {
-      document.getElementById('showDimensionsCheckbox').checked = opts.dims;
-      showDimensions = opts.dims;
+      e.showDimensionsCheckbox.checked = opts.dims;
     }
+
     var s = getState();
-    updateUI(s.w, s.h);
+    var svgMarkup = updateUI(s, false);
     var path = buildPathQuery(s);
     return {
       url: BASE_URL + '/' + path,
       relativeUrl: '/' + path,
       htmlTag: '<img src="' + BASE_URL + '/' + path + '" width="' + s.w + '" height="' + s.h + '" alt="' + s.text + '" />',
       webComponentTag: '<place-holger w="' + s.w + '" h="' + s.h + '" bg="' + s.bg.toLowerCase() + '" fg="' + s.fg.toLowerCase() + '" text="' + s.text + '"></place-holger>',
-      svg: window.Placeholger.svg(s)
+      svg: svgMarkup
     };
   }
 
@@ -468,13 +443,81 @@
           return executeAgentTool(args);
         }
       });
-    } catch (e) {}
+    } catch (err) {}
   }
 
-  // Initialize Studio UI on DOM ready
+  function bindEvents() {
+    var e = cacheElements();
+
+    document.addEventListener('click', function (ev) {
+      var btn = ev.target.closest('button');
+      if (!btn) return;
+
+      var d = btn.dataset;
+      if (d.theme) {
+        setTheme(d.theme);
+      } else if (d.copyTarget) {
+        copySnippet(d.copyTarget, btn);
+      } else if (d.action === 'reset') {
+        resetDefaults();
+      } else if (d.action === 'clear-text') {
+        clearCustomText();
+      } else if (d.action === 'copy-url') {
+        copyToClipboard(BASE_URL + '/' + e.urlPath.textContent, btn);
+      } else if (d.sample !== undefined) {
+        applySampleText(d.sample);
+      } else if (d.colorBg && d.colorFg) {
+        applyColorPreset(d.colorBg, d.colorFg);
+      } else if (d.presetW && d.presetH) {
+        applyPreset(parseInt(d.presetW, 10), parseInt(d.presetH, 10));
+      } else if (d.copyMarkup) {
+        copyMarkup(d.copyMarkup, btn);
+      } else if (d.download) {
+        downloadPlaceholder(d.download);
+      }
+    });
+
+    if (e.configuratorForm) {
+      e.configuratorForm.addEventListener('input', function (ev) {
+        var t = ev.target;
+        switch (t.id) {
+          case 'inputWidth': handleDimensionChange('width'); break;
+          case 'inputHeight': handleDimensionChange('height'); break;
+          case 'rangeWidth': syncRangeToInput('width'); break;
+          case 'rangeHeight': syncRangeToInput('height'); break;
+          case 'pickerBg': handleColorPickerChange('bg', t.value); break;
+          case 'pickerFg': handleColorPickerChange('fg', t.value); break;
+          case 'inputBg': syncHexInput('bg', t.value, false); break;
+          case 'inputFg': syncHexInput('fg', t.value, false); break;
+          case 'inputText': handleTextChange(); break;
+        }
+      });
+
+      e.configuratorForm.addEventListener('change', function (ev) {
+        var id = ev.target.id;
+        if (id === 'showDimensionsCheckbox') {
+          updateUI();
+        } else if (id === 'lockAspectCheckbox') {
+          toggleLockAspect();
+        }
+      });
+    }
+  }
+
+  function init() {
+    cacheElements();
+    initTheme();
+    bindEvents();
+    var initialState = getState();
+    var isDefaultInitial = initialState.w === 600 && initialState.h === 400 &&
+      initialState.bg === '9E9EA0' && initialState.fg === 'FFFFFF' &&
+      !initialState.rawText && !initialState.showDims;
+    updateUI(initialState, isDefaultInitial);
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { updateUI(600, 400); });
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    updateUI(600, 400);
+    init();
   }
 })();

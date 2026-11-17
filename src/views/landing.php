@@ -72,7 +72,7 @@
   <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
   <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" /></noscript>
-  <script>!function(){try{var t=localStorage.getItem('placeholger_theme')||'system',e=t==='system'?(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.classList.add(e);document.documentElement.classList.remove(e==='dark'?'light':'dark')}catch(e){}}();</script>
+  <script>!function(){try{var t=localStorage.getItem('placeholger_theme')||'system',e=t==='system'?(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;if(e==='light'){var c=document.documentElement.classList;c.add('light');c.remove('dark')}}catch(e){}}();</script>
   <?php
   $inlineCssPath = __DIR__ . '/../public/assets/app.css';
   if (!is_file($inlineCssPath)) {
@@ -116,13 +116,13 @@
       <div class="flex items-center gap-space-sm shrink-0">
         <!-- Theme Mode Segmented Control -->
         <div aria-label="Theme mode switcher" class="flex items-center gap-0.5 p-0.5 rounded bg-surface-container border border-surface-container-highest/60" id="themeSegmentedControl" role="group">
-          <button aria-label="Light mode" aria-pressed="false" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnLight" onclick="setTheme('light')" title="Light theme" type="button">
+          <button aria-label="Light mode" aria-pressed="false" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" data-theme="light" id="themeBtnLight" title="Light theme" type="button">
             <svg aria-hidden="true" focusable="false" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
           </button>
-          <button aria-label="Follow system theme" aria-pressed="true" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnSystem" onclick="setTheme('system')" title="System preference" type="button">
+          <button aria-label="Follow system theme" aria-pressed="true" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" data-theme="system" id="themeBtnSystem" title="System preference" type="button">
             <svg aria-hidden="true" focusable="false" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
           </button>
-          <button aria-label="Dark mode" aria-pressed="false" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" id="themeBtnDark" onclick="setTheme('dark')" title="Dark theme" type="button">
+          <button aria-label="Dark mode" aria-pressed="false" class="w-7 h-7 rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" data-theme="dark" id="themeBtnDark" title="Dark theme" type="button">
             <svg aria-hidden="true" focusable="false" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           </button>
         </div>
@@ -179,7 +179,7 @@
               <span class="font-label-sm text-label-sm text-on-surface-variant px-1.5 py-0.5 rounded bg-surface-container-high shrink-0 font-medium">EMBED</span>
               <code class="font-code-md text-code-md text-on-surface truncate" id="quickEmbedCode">&lt;img src="https://placeholger.hellinger.wtf/600/400/9e9ea0/ffffff" width="600" height="400" alt="PLACEHOLGER" /&gt;</code>
             </div>
-            <button data-agent-action="copy-quick-embed" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-md text-label-md transition-colors shrink-0" id="copyQuickEmbedBtn" onclick="copySnippet('quickEmbedCode', this)" type="button">
+            <button data-agent-action="copy-quick-embed" data-copy-target="quickEmbedCode" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-md text-label-md transition-colors shrink-0" id="copyQuickEmbedBtn" type="button">
               <span>Copy &lt;img&gt;</span>
             </button>
           </div>
@@ -195,7 +195,7 @@
                 <h2 class="font-code-md text-code-md text-primary font-medium">01 // Configurator</h2>
                 <span class="text-on-surface-variant font-label-sm text-label-sm">Dynamic Vector Specs</span>
               </div>
-              <button data-agent-action="reset-defaults" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 py-1.5 px-2 rounded" onclick="resetDefaults()" type="button">
+              <button data-agent-action="reset-defaults" data-action="reset" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 py-1.5 px-2 rounded" type="button">
                 <span aria-hidden="true">↺</span><span>Reset</span>
               </button>
             </div>
@@ -207,7 +207,7 @@
                 <div class="col-span-1 sm:col-span-5 flex flex-col gap-1">
                   <label class="font-label-sm text-label-sm text-on-surface-variant" for="inputWidth">Width</label>
                   <div class="flex items-center bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
-                    <input class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputWidth" max="2048" min="1" name="width" oninput="handleDimensionChange('width')" toolparamdescription="Placeholder width in pixels (1 to 2048)" type="number" value="600" />
+                    <input class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputWidth" max="2048" min="1" name="width" toolparamdescription="Placeholder width in pixels (1 to 2048)" type="number" value="600" />
                     <span aria-hidden="true" class="font-label-sm text-label-sm text-on-surface-variant">px</span>
                   </div>
                 </div>
@@ -217,7 +217,7 @@
                 <div class="col-span-1 sm:col-span-5 flex flex-col gap-1">
                   <label class="font-label-sm text-label-sm text-on-surface-variant" for="inputHeight">Height</label>
                   <div class="flex items-center bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
-                    <input class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputHeight" max="2048" min="1" name="height" oninput="handleDimensionChange('height')" toolparamdescription="Placeholder height in pixels (1 to 2048)" type="number" value="400" />
+                    <input class="w-full bg-transparent font-code-lg text-code-lg text-primary focus:outline-none" id="inputHeight" max="2048" min="1" name="height" toolparamdescription="Placeholder height in pixels (1 to 2048)" type="number" value="400" />
                     <span aria-hidden="true" class="font-label-sm text-label-sm text-on-surface-variant">px</span>
                   </div>
                 </div>
@@ -231,14 +231,14 @@
                   <label for="rangeWidth">Width Slider</label>
                   <span class="font-code-md" id="sliderWidthVal">600px</span>
                 </div>
-                <input class="w-full accent-primary bg-surface-container-high h-1.5 rounded cursor-pointer" id="rangeWidth" max="1920" min="32" oninput="syncRangeToInput('width')" step="1" type="range" value="600" />
+                <input class="w-full accent-primary bg-surface-container-high h-1.5 rounded cursor-pointer" id="rangeWidth" max="1920" min="32" step="1" type="range" value="600" />
               </div>
               <div class="flex flex-col gap-1">
                 <div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
                   <label for="rangeHeight">Height Slider</label>
                   <span class="font-code-md" id="sliderHeightVal">400px</span>
                 </div>
-                <input class="w-full accent-primary bg-surface-container-high h-1.5 rounded cursor-pointer" id="rangeHeight" max="1080" min="32" oninput="syncRangeToInput('height')" step="1" type="range" value="400" />
+                <input class="w-full accent-primary bg-surface-container-high h-1.5 rounded cursor-pointer" id="rangeHeight" max="1080" min="32" step="1" type="range" value="400" />
               </div>
             </div>
 
@@ -249,17 +249,17 @@
                 <div class="flex flex-col gap-1">
                   <label class="font-label-sm text-label-sm text-on-surface-variant" for="inputBg">Background (bg)</label>
                   <div class="flex items-center gap-2 bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
-                    <input aria-label="Background color picker" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0" id="pickerBg" oninput="handleColorPickerChange('bg', this.value)" type="color" value="#9E9EA0" />
+                    <input aria-label="Background color picker" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0" id="pickerBg" type="color" value="#9E9EA0" />
                     <span aria-hidden="true" class="font-code-md text-code-md text-on-surface-variant">#</span>
-                    <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputBg" maxlength="6" name="bg" oninput="handleHexInputChange('bg', this.value)" spellcheck="false" toolparamdescription="Background hex color (3 or 6 hex characters without #)" type="text" value="9E9EA0" />
+                    <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputBg" maxlength="6" name="bg" spellcheck="false" toolparamdescription="Background hex color (3 or 6 hex characters without #)" type="text" value="9E9EA0" />
                   </div>
                 </div>
                 <div class="flex flex-col gap-1">
                   <label class="font-label-sm text-label-sm text-on-surface-variant" for="inputFg">Foreground / Crosshairs &amp; Text (fg)</label>
                   <div class="flex items-center gap-2 bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-1.5 focus-within:ring-1 focus-within:ring-primary">
-                    <input aria-label="Foreground color picker" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0" id="pickerFg" oninput="handleColorPickerChange('fg', this.value)" type="color" value="#FFFFFF" />
+                    <input aria-label="Foreground color picker" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0" id="pickerFg" type="color" value="#FFFFFF" />
                     <span aria-hidden="true" class="font-code-md text-code-md text-on-surface-variant">#</span>
-                    <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputFg" maxlength="6" name="fg" oninput="handleHexInputChange('fg', this.value)" spellcheck="false" toolparamdescription="Foreground crosshair and text hex color (3 or 6 hex characters without #)" type="text" value="FFFFFF" />
+                    <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none uppercase" id="inputFg" maxlength="6" name="fg" spellcheck="false" toolparamdescription="Foreground crosshair and text hex color (3 or 6 hex characters without #)" type="text" value="FFFFFF" />
                   </div>
                 </div>
               </div>
@@ -270,23 +270,23 @@
               <div class="flex items-center justify-between flex-wrap gap-2">
                 <label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider" for="inputText">Custom Text Overlay (?text=...)</label>
                 <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-                  <input class="sr-only peer" id="showDimensionsCheckbox" name="dims" onchange="toggleShowDimensions()" role="switch" toolparamdescription="Append dimensions subtitle below main label" type="checkbox" />
+                  <input class="sr-only peer" id="showDimensionsCheckbox" name="dims" role="switch" toolparamdescription="Append dimensions subtitle below main label" type="checkbox" />
                   <div class="w-8 h-4 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600 relative"></div>
                   <span class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface">Append Dimensions Subtitle (?dims=1)</span>
                 </label>
               </div>
               <div class="flex items-center bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-2 focus-within:ring-1 focus-within:ring-primary">
                 <span aria-hidden="true" class="font-code-md text-on-surface-variant mr-2">T</span>
-                <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none" id="inputText" maxlength="64" name="text" oninput="handleTextChange()" placeholder="e.g., Hero Banner, Avatar, or leave blank for default 'PLACEHOLGER'" toolparamdescription="Centered label text (max 64 characters)" type="text" value="" />
-                <button class="text-on-surface-variant hover:text-primary text-xs px-2 py-1 rounded transition-colors hidden" id="clearTextBtn" onclick="clearCustomText()" type="button">Clear</button>
+                <input class="w-full bg-transparent font-code-md text-code-md text-primary focus:outline-none" id="inputText" maxlength="64" name="text" placeholder="e.g., Hero Banner, Avatar, or leave blank for default 'PLACEHOLGER'" toolparamdescription="Centered label text (max 64 characters)" type="text" value="" />
+                <button class="text-on-surface-variant hover:text-primary text-xs px-2 py-1 rounded transition-colors hidden" data-action="clear-text" id="clearTextBtn" type="button">Clear</button>
               </div>
               <div class="flex flex-wrap items-center gap-1.5 pt-1">
                 <span class="font-label-sm text-label-sm text-on-surface-variant">Quick Samples:</span>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('PLACEHOLGER')" type="button">PLACEHOLGER</button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Hero Banner')" type="button">Hero Banner</button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Product Thumbnail')" type="button">Product Thumbnail</button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Wireframe Box')" type="button">Wireframe Box</button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" onclick="applySampleText('Avatar / Profile')" type="button">Avatar / Profile</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" data-sample="PLACEHOLGER" type="button">PLACEHOLGER</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" data-sample="Hero Banner" type="button">Hero Banner</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" data-sample="Product Thumbnail" type="button">Product Thumbnail</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" data-sample="Wireframe Box" type="button">Wireframe Box</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" data-sample="Avatar / Profile" type="button">Avatar / Profile</button>
               </div>
             </div>
 
@@ -294,22 +294,22 @@
             <div class="flex flex-col gap-space-xs pt-space-xs">
               <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Color Palette Presets</span>
               <div class="flex flex-wrap gap-1.5">
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" onclick="applyColorPreset('9E9EA0', 'FFFFFF')" type="button">
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" data-color-bg="9E9EA0" data-color-fg="FFFFFF" type="button">
                   <span class="w-2.5 h-2.5 rounded-full" style="background:#9E9EA0;border:1px solid #FFFFFF;"></span>Default Gray
                 </button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" onclick="applyColorPreset('0F172A', '38BDF8')" type="button">
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" data-color-bg="0F172A" data-color-fg="38BDF8" type="button">
                   <span class="w-2.5 h-2.5 rounded-full" style="background:#0F172A;border:1px solid #38BDF8;"></span>Dark Slate
                 </button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" onclick="applyColorPreset('18181B', '22C55E')" type="button">
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" data-color-bg="18181B" data-color-fg="22C55E" type="button">
                   <span class="w-2.5 h-2.5 rounded-full" style="background:#18181B;border:1px solid #22C55E;"></span>Terminal Neon
                 </button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" onclick="applyColorPreset('1E3A8A', '93C5FD')" type="button">
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" data-color-bg="1E3A8A" data-color-fg="93C5FD" type="button">
                   <span class="w-2.5 h-2.5 rounded-full" style="background:#1E3A8A;border:1px solid #93C5FD;"></span>Blueprint
                 </button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" onclick="applyColorPreset('002B36', 'B58900')" type="button">
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" data-color-bg="002B36" data-color-fg="B58900" type="button">
                   <span class="w-2.5 h-2.5 rounded-full" style="background:#002B36;border:1px solid #B58900;"></span>Solarized
                 </button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" onclick="applyColorPreset('F1F5F9', '475569')" type="button">
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors flex items-center gap-1.5" data-color-bg="F1F5F9" data-color-fg="475569" type="button">
                   <span class="w-2.5 h-2.5 rounded-full" style="background:#F1F5F9;border:1px solid #475569;"></span>Clean Light
                 </button>
               </div>
@@ -319,13 +319,13 @@
             <div class="flex flex-col gap-space-xs pt-space-xs" id="presets">
               <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Fast Dimension Presets</span>
               <div class="flex flex-wrap gap-1.5">
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" onclick="applyPreset(320, 640)" type="button">320×640</button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-primary font-code-md text-code-md transition-colors" onclick="applyPreset(600, 400)" type="button">600×400</button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" onclick="applyPreset(800, 600)" type="button">800×600</button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" onclick="applyPreset(1024, 768)" type="button">1024×768</button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" onclick="applyPreset(1200, 630)" type="button">1200×630 (OG)</button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" onclick="applyPreset(1920, 1080)" type="button">1920×1080</button>
-                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" onclick="applyPreset(512, 512)" type="button">Square 512</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" data-preset-w="320" data-preset-h="640" type="button">320×640</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-primary font-code-md text-code-md transition-colors" data-preset-w="600" data-preset-h="400" type="button">600×400</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" data-preset-w="800" data-preset-h="600" type="button">800×600</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" data-preset-w="1024" data-preset-h="768" type="button">1024×768</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" data-preset-w="1200" data-preset-h="630" type="button">1200×630 (OG)</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" data-preset-w="1920" data-preset-h="1080" type="button">1920×1080</button>
+                <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-code-md transition-colors" data-preset-w="512" data-preset-h="512" type="button">Square 512</button>
               </div>
             </div>
 
@@ -333,7 +333,7 @@
             <div class="flex flex-wrap items-center justify-between gap-space-sm pt-space-xs pb-space-xs">
               <div class="flex items-center gap-space-md">
                 <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-                  <input class="sr-only peer" id="lockAspectCheckbox" onchange="toggleLockAspect()" role="switch" type="checkbox" />
+                  <input class="sr-only peer" id="lockAspectCheckbox" role="switch" type="checkbox" />
                   <div class="w-8 h-4 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600 relative"></div>
                   <span class="font-label-sm text-label-sm text-on-surface">Lock Aspect Ratio</span>
                 </label>
@@ -353,7 +353,7 @@
                   https://placeholger.hellinger.wtf/<span class="text-secondary font-medium" id="urlPath">600/400/9e9ea0/ffffff</span>
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
-                  <button data-agent-action="copy-url" class="px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-sm text-label-sm transition-colors flex items-center gap-1" id="copyUrlBtn" onclick="copyToClipboard('https://placeholger.hellinger.wtf/' + document.getElementById('urlPath').innerText, this)" type="button">
+                  <button data-agent-action="copy-url" data-action="copy-url" class="px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-sm text-label-sm transition-colors flex items-center gap-1" id="copyUrlBtn" type="button">
                     <span>Copy URL</span>
                   </button>
                   <a aria-label="Open SVG endpoint directly in new tab" class="px-2.5 py-1.5 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors inline-flex items-center justify-center font-label-sm text-label-sm" href="/600/400/9e9ea0/ffffff" id="externalLinkBtn" rel="noopener" target="_blank" title="Open SVG endpoint directly in new tab"><span aria-hidden="true">↗</span></a>
@@ -363,19 +363,19 @@
 
             <!-- Snippet Copy Buttons -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-space-xs pt-space-xs">
-              <button class="py-2 px-3 rounded bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary font-label-sm text-label-sm text-left flex items-center justify-between transition-colors" onclick="copyMarkup('img', this)" type="button">
+              <button class="py-2 px-3 rounded bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary font-label-sm text-label-sm text-left flex items-center justify-between transition-colors" data-copy-markup="img" type="button">
                 <span>HTML &lt;img&gt;</span>
                 <span class="text-on-surface-variant">⎘</span>
               </button>
-              <button class="py-2 px-3 rounded bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary font-label-sm text-label-sm text-left flex items-center justify-between transition-colors" onclick="copyMarkup('webcomponent', this)" type="button">
+              <button class="py-2 px-3 rounded bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary font-label-sm text-label-sm text-left flex items-center justify-between transition-colors" data-copy-markup="webcomponent" type="button">
                 <span>&lt;place-holger&gt;</span>
                 <span class="text-on-surface-variant">⎘</span>
               </button>
-              <button class="py-2 px-3 rounded bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary font-label-sm text-label-sm text-left flex items-center justify-between transition-colors" onclick="copyMarkup('md', this)" type="button">
+              <button class="py-2 px-3 rounded bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary font-label-sm text-label-sm text-left flex items-center justify-between transition-colors" data-copy-markup="md" type="button">
                 <span>Markdown ![]()</span>
                 <span class="text-on-surface-variant">⎘</span>
               </button>
-              <button class="py-2 px-3 rounded bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary font-label-sm text-label-sm text-left flex items-center justify-between transition-colors" onclick="copyMarkup('curl', this)" type="button">
+              <button class="py-2 px-3 rounded bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary font-label-sm text-label-sm text-left flex items-center justify-between transition-colors" data-copy-markup="curl" type="button">
                 <span>cURL Snippet</span>
                 <span class="text-on-surface-variant">$</span>
               </button>
@@ -428,10 +428,10 @@
 
             <!-- Direct Browser Download Actions (SVG & Canvas PNG) -->
             <div class="grid grid-cols-2 gap-space-xs">
-              <button data-agent-action="download-svg" class="py-2.5 px-3 rounded bg-primary text-on-primary font-label-md text-label-md font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5" id="downloadSvgBtn" onclick="downloadPlaceholder('svg')" type="button">
+              <button data-agent-action="download-svg" data-download="svg" class="py-2.5 px-3 rounded bg-primary text-on-primary font-label-md text-label-md font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5" id="downloadSvgBtn" type="button">
                 <span>↓ Download .SVG</span>
               </button>
-              <button data-agent-action="download-png" class="py-2.5 px-3 rounded bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-md text-label-md font-medium transition-colors flex items-center justify-center gap-1.5 border border-surface-container-highest" id="downloadPngBtn" onclick="downloadPlaceholder('png')" type="button">
+              <button data-agent-action="download-png" data-download="png" class="py-2.5 px-3 rounded bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-md text-label-md font-medium transition-colors flex items-center justify-center gap-1.5 border border-surface-container-highest" id="downloadPngBtn" type="button">
                 <span>↓ Export .PNG (Canvas)</span>
               </button>
             </div>

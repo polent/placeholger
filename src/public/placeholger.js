@@ -19,27 +19,33 @@
   var DEFAULT_FG = 'FFFFFF';
   var DEFAULT_TEXT = 'PLACEHOLGER';
 
+  var HEX_RE = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
+  var XML_RE = /[<>&"']/g;
+  var XML_ENTITIES = {
+    '<': '&lt;',
+    '>': '&gt;',
+    '&': '&amp;',
+    '"': '&quot;',
+    "'": '&apos;'
+  };
+
+  function r2(n) {
+    return Math.round(n * 100) / 100;
+  }
+
   function sanitizeHex(input, fallback) {
     if (!input || typeof input !== 'string') return fallback;
-    var clean = input.trim().replace(/^#/, '');
-    if (/^[0-9a-fA-F]{3}$/.test(clean)) {
-      return (clean[0] + clean[0] + clean[1] + clean[1] + clean[2] + clean[2]).toUpperCase();
-    }
-    if (/^[0-9a-fA-F]{6}$/.test(clean)) {
-      return clean.toUpperCase();
-    }
-    return fallback;
+    var m = HEX_RE.exec(input.trim());
+    if (!m) return fallback;
+    var clean = m[1].toUpperCase();
+    return clean.length === 3
+      ? clean[0] + clean[0] + clean[1] + clean[1] + clean[2] + clean[2]
+      : clean;
   }
 
   function escapeXml(str) {
-    return String(str).replace(/[<>&"']/g, function (c) {
-      return {
-        '<': '&lt;',
-        '>': '&gt;',
-        '&': '&amp;',
-        '"': '&quot;',
-        "'": '&apos;'
-      }[c];
+    return String(str).replace(XML_RE, function (c) {
+      return XML_ENTITIES[c];
     });
   }
 
@@ -119,7 +125,7 @@
     var showDims = Boolean(o.showDims || o.dims);
 
     var minDim = Math.min(w, h);
-    var strokeWidth = Math.max(1.5, Math.min(6.0, Number((minDim * 0.0055).toFixed(2))));
+    var strokeWidth = Math.max(1.5, Math.min(6.0, r2(minDim * 0.0055)));
 
     var decodedLen = Math.max(1, rawText.length);
     var maxTextWidth = w * 0.80;
@@ -130,15 +136,15 @@
     var gapFraction = showDims ? 0.22 : 0.17;
     var stopRatio = Math.max(0.20, 0.50 - gapFraction);
 
-    var xLeft = Number((w * stopRatio).toFixed(2));
-    var xRight = Number((w * (1.0 - stopRatio)).toFixed(2));
-    var yTop = Number((h * stopRatio).toFixed(2));
-    var yBottom = Number((h * (1.0 - stopRatio)).toFixed(2));
+    var xLeft = r2(w * stopRatio);
+    var xRight = r2(w * (1.0 - stopRatio));
+    var yTop = r2(h * stopRatio);
+    var yBottom = r2(h * (1.0 - stopRatio));
 
-    var textY = Number((showDims ? h * 0.47 : h * 0.50).toFixed(2));
+    var textY = r2(showDims ? h * 0.47 : h * 0.50);
     var subFontSize = Math.max(8, Math.round(fontSize * 0.42));
-    var subY = Number((textY + fontSize * 0.72).toFixed(2));
-    var letterSpacing = Number((fontSize * 0.06).toFixed(2));
+    var subY = r2(textY + fontSize * 0.72);
+    var letterSpacing = r2(fontSize * 0.06);
 
     var subtitleSvg = '';
     if (showDims && minDim >= 48) {
@@ -167,11 +173,12 @@
     var spec = el.getAttribute('data-placeholger');
     if (!spec) return;
     var opts = parseSpec(spec);
-    if (el.hasAttribute('data-w')) opts.w = clampDim(el.getAttribute('data-w'), opts.w);
-    if (el.hasAttribute('data-h')) opts.h = clampDim(el.getAttribute('data-h'), opts.h);
-    if (el.hasAttribute('data-bg')) opts.bg = sanitizeHex(el.getAttribute('data-bg'), opts.bg);
-    if (el.hasAttribute('data-fg')) opts.fg = sanitizeHex(el.getAttribute('data-fg'), opts.fg);
-    if (el.hasAttribute('data-text')) opts.text = el.getAttribute('data-text');
+    var v;
+    if ((v = el.getAttribute('data-w')) !== null) opts.w = clampDim(v, opts.w);
+    if ((v = el.getAttribute('data-h')) !== null) opts.h = clampDim(v, opts.h);
+    if ((v = el.getAttribute('data-bg')) !== null) opts.bg = sanitizeHex(v, opts.bg);
+    if ((v = el.getAttribute('data-fg')) !== null) opts.fg = sanitizeHex(v, opts.fg);
+    if ((v = el.getAttribute('data-text')) !== null) opts.text = v;
     if (el.hasAttribute('data-dims')) opts.showDims = true;
 
     if (el.tagName === 'IMG') {
@@ -203,22 +210,25 @@
         this.render();
       }
       attributeChangedCallback() {
-        this.render();
+        if (this.isConnected) this.render();
       }
       render() {
         var specAttr = this.getAttribute('spec');
         var base = specAttr ? parseSpec(specAttr) : {};
-        var w = this.getAttribute('w') || this.getAttribute('width') || base.w || DEFAULT_W;
-        var h = this.getAttribute('h') || this.getAttribute('height') || base.h || (this.getAttribute('w') ? w : DEFAULT_H);
+        var wAttr = this.getAttribute('w');
+        var w = wAttr || this.getAttribute('width') || base.w || DEFAULT_W;
+        var h = this.getAttribute('h') || this.getAttribute('height') || base.h || (wAttr ? w : DEFAULT_H);
         var bg = this.getAttribute('bg') || base.bg || DEFAULT_BG;
         var fg = this.getAttribute('fg') || base.fg || DEFAULT_FG;
-        var text = this.getAttribute('text') !== null ? this.getAttribute('text') : (base.text || DEFAULT_TEXT);
-        var showDims = this.hasAttribute('dims') ? (this.getAttribute('dims') !== 'false' && this.getAttribute('dims') !== '0') : Boolean(base.showDims);
+        var textAttr = this.getAttribute('text');
+        var text = textAttr !== null ? textAttr : (base.text || DEFAULT_TEXT);
+        var dimsAttr = this.getAttribute('dims');
+        var showDims = dimsAttr !== null ? (dimsAttr !== 'false' && dimsAttr !== '0') : Boolean(base.showDims);
 
         this.style.display = this.style.display || 'inline-block';
         this.style.lineHeight = '0';
         this.innerHTML = generateSvg({ w: w, h: h, bg: bg, fg: fg, text: text, showDims: showDims });
-        var svgEl = this.querySelector('svg');
+        var svgEl = this.firstElementChild;
         if (svgEl) {
           svgEl.style.maxWidth = '100%';
           svgEl.style.height = 'auto';
