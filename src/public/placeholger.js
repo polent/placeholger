@@ -3,12 +3,12 @@
  * https://placeholger.hellinger.wtf/placeholger.js
  *
  * Capabilities:
- * 1. Custom Element: <place-holger w="600" h="400" bg="9e9ea0" fg="ffffff" text="PLACEHOLGER" dims></place-holger>
- * 2. Data Attribute Hydration: <img data-placeholger="600/400/9e9ea0/ffffff?text=Hero+Banner" alt="..." />
+ * 1. Custom Element: <place-holger w="600" h="400" bg="9e9ea0" fg="ffffff" text="PLACEHOLGER" font="sans" dims></place-holger>
+ * 2. Data Attribute Hydration: <img data-placeholger="600/400/9e9ea0/ffffff?text=Hero+Banner&font=mono" alt="..." />
  * 3. Programmatic API:
- *    - window.Placeholger.svg({ w, h, bg, fg, text, showDims })
- *    - window.Placeholger.dataUri({ w, h, bg, fg, text, showDims })
- *    - window.Placeholger.parseSpec("600/400/9e9ea0/ffffff?text=Banner")
+ *    - window.Placeholger.svg({ w, h, bg, fg, text, showDims, font })
+ *    - window.Placeholger.dataUri({ w, h, bg, fg, text, showDims, font })
+ *    - window.Placeholger.parseSpec("600/400/9e9ea0/ffffff?text=Banner&font=serif")
  */
 (function (root) {
   'use strict';
@@ -18,6 +18,29 @@
   var DEFAULT_BG = '9E9EA0';
   var DEFAULT_FG = 'FFFFFF';
   var DEFAULT_TEXT = 'PLACEHOLGER';
+  var DEFAULT_FONT = 'sans';
+  var FONTS = {
+    sans: {
+      stack: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      widthFactor: 0.66
+    },
+    mono: {
+      stack: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+      widthFactor: 0.68
+    },
+    serif: {
+      stack: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif",
+      widthFactor: 0.62
+    },
+    rounded: {
+      stack: "ui-rounded, 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Quicksand, sans-serif",
+      widthFactor: 0.66
+    },
+    condensed: {
+      stack: "'Arial Narrow', 'Roboto Condensed', 'Helvetica Neue Condensed', Impact, sans-serif",
+      widthFactor: 0.56
+    }
+  };
 
   var HEX_RE = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
   var XML_RE = /[<>&"']/g;
@@ -43,6 +66,12 @@
       : clean;
   }
 
+  function sanitizeFont(input) {
+    if (!input || typeof input !== 'string') return DEFAULT_FONT;
+    var clean = input.trim().toLowerCase();
+    return Object.prototype.hasOwnProperty.call(FONTS, clean) ? clean : DEFAULT_FONT;
+  }
+
   function escapeXml(str) {
     return String(str).replace(XML_RE, function (c) {
       return XML_ENTITIES[c];
@@ -56,12 +85,12 @@
   }
 
   /**
-   * Parses a shorthand spec string like "600/400/0f172a/38bdf8?text=Hero&dims=1"
+   * Parses a shorthand spec string like "600/400/0f172a/38bdf8?text=Hero&font=mono&dims=1"
    * or "600x400/9e9ea0/ffffff" or "512" into options.
    */
   function parseSpec(spec) {
     if (!spec || typeof spec !== 'string') {
-      return { w: DEFAULT_W, h: DEFAULT_H, bg: DEFAULT_BG, fg: DEFAULT_FG, text: DEFAULT_TEXT, showDims: false };
+      return { w: DEFAULT_W, h: DEFAULT_H, bg: DEFAULT_BG, fg: DEFAULT_FG, text: DEFAULT_TEXT, showDims: false, font: DEFAULT_FONT };
     }
     var parts = spec.replace(/^https?:\/\/[^/]+\//i, '').replace(/^\/+/, '').split('?');
     var pathPart = parts[0] || '';
@@ -107,8 +136,9 @@
     var text = rawText ? rawText.slice(0, 64) : DEFAULT_TEXT;
     var dimsParam = (params.get('dims') || params.get('sub') || '').toLowerCase();
     var showDims = dimsParam === '1' || dimsParam === 'true' || dimsParam === 'yes';
+    var font = sanitizeFont(params.get('font'));
 
-    return { w: w, h: h, bg: bg, fg: fg, text: text, showDims: showDims };
+    return { w: w, h: h, bg: bg, fg: fg, text: text, showDims: showDims, font: font };
   }
 
   /**
@@ -123,6 +153,8 @@
     var rawText = typeof o.text === 'string' && o.text.trim() !== '' ? o.text.trim().slice(0, 64) : DEFAULT_TEXT;
     var safeText = escapeXml(rawText);
     var showDims = Boolean(o.showDims || o.dims);
+    var fontKey = sanitizeFont(o.font);
+    var fontCfg = FONTS[fontKey];
 
     var minDim = Math.min(w, h);
     var strokeWidth = Math.max(1.5, Math.min(6.0, r2(minDim * 0.0055)));
@@ -130,7 +162,7 @@
     var decodedLen = Math.max(1, rawText.length);
     var maxTextWidth = w * 0.80;
     var baseFontSize = minDim * 0.095;
-    var widthBoundFontSize = maxTextWidth / Math.max(4, decodedLen * 0.66);
+    var widthBoundFontSize = maxTextWidth / Math.max(4, decodedLen * fontCfg.widthFactor);
     var fontSize = Math.max(8, Math.min(96, Math.round(Math.min(baseFontSize, widthBoundFontSize))));
 
     var gapFraction = showDims ? 0.22 : 0.17;
@@ -160,7 +192,7 @@
       '    <line x1="0" y1="' + h + '" x2="' + xLeft + '" y2="' + yBottom + '"/>\n' +
       '    <line x1="' + w + '" y1="' + h + '" x2="' + xRight + '" y2="' + yBottom + '"/>\n' +
       '  </g>\n' +
-      '  <text aria-hidden="true" x="50%" y="' + textY + '" fill="' + fg + '" font-family="\'Geist\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif" font-size="' + fontSize + '" font-weight="700" letter-spacing="' + letterSpacing + 'px" text-anchor="middle" dominant-baseline="central">' + safeText + '</text>' + subtitleSvg + '\n' +
+      '  <text aria-hidden="true" x="50%" y="' + textY + '" fill="' + fg + '" font-family="' + fontCfg.stack + '" font-size="' + fontSize + '" font-weight="700" letter-spacing="' + letterSpacing + 'px" text-anchor="middle" dominant-baseline="central">' + safeText + '</text>' + subtitleSvg + '\n' +
       '</svg>';
   }
 
@@ -179,6 +211,7 @@
     if ((v = el.getAttribute('data-bg')) !== null) opts.bg = sanitizeHex(v, opts.bg);
     if ((v = el.getAttribute('data-fg')) !== null) opts.fg = sanitizeHex(v, opts.fg);
     if ((v = el.getAttribute('data-text')) !== null) opts.text = v;
+    if ((v = el.getAttribute('data-font')) !== null) opts.font = sanitizeFont(v);
     if (el.hasAttribute('data-dims')) opts.showDims = true;
 
     if (el.tagName === 'IMG') {
@@ -204,7 +237,7 @@
   if (typeof window !== 'undefined' && 'customElements' in window && !window.customElements.get('place-holger')) {
     class PlaceHolgerElement extends HTMLElement {
       static get observedAttributes() {
-        return ['w', 'h', 'width', 'height', 'bg', 'fg', 'text', 'dims', 'spec'];
+        return ['w', 'h', 'width', 'height', 'bg', 'fg', 'text', 'font', 'dims', 'spec'];
       }
       connectedCallback() {
         this.render();
@@ -222,12 +255,13 @@
         var fg = this.getAttribute('fg') || base.fg || DEFAULT_FG;
         var textAttr = this.getAttribute('text');
         var text = textAttr !== null ? textAttr : (base.text || DEFAULT_TEXT);
+        var font = sanitizeFont(this.getAttribute('font') || base.font || DEFAULT_FONT);
         var dimsAttr = this.getAttribute('dims');
         var showDims = dimsAttr !== null ? (dimsAttr !== 'false' && dimsAttr !== '0') : Boolean(base.showDims);
 
         this.style.display = this.style.display || 'inline-block';
         this.style.lineHeight = '0';
-        this.innerHTML = generateSvg({ w: w, h: h, bg: bg, fg: fg, text: text, showDims: showDims });
+        this.innerHTML = generateSvg({ w: w, h: h, bg: bg, fg: fg, text: text, font: font, showDims: showDims });
         var svgEl = this.firstElementChild;
         if (svgEl) {
           svgEl.style.maxWidth = '100%';
@@ -252,7 +286,8 @@
     dataUri: generateDataUri,
     parseSpec: parseSpec,
     hydrate: hydrateAll,
-    sanitizeHex: sanitizeHex
+    sanitizeHex: sanitizeHex,
+    sanitizeFont: sanitizeFont
   };
 
   root.Placeholger = PlaceholgerAPI;

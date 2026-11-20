@@ -48,6 +48,7 @@ async function runTests() {
     ok(homeHtml.includes('application/ld+json'), 'Landing page embeds Schema.org JSON-LD structured data');
     ok(homeHtml.includes('href="/llms.txt"') && homeHtml.includes('href="/openapi.json"'), 'Landing page links to /llms.txt and /openapi.json');
     ok(!homeHtml.includes('cdn.tailwindcss.com'), 'Landing page uses compiled CSS with zero render-blocking Tailwind CDN script');
+    ok(homeHtml.includes('id="selectFont"') && homeHtml.includes('value="mono"'), 'Landing page includes #selectFont preset selector');
 
     console.log('==> [2/4] Testing SVG Endpoints, Caching, ETag & Strict Non-Indexing Headers...');
     const svgRes = await fetch(`${BASE}/600/400/0f172a/38bdf8?text=Agent+Test&dims=1`);
@@ -74,6 +75,17 @@ async function runTests() {
     const badRes = await fetch(`${BASE}/4096/400`);
     ok(badRes.status === 400, 'Out-of-bounds dimension (/4096/400) returns HTTP 400 Bad Request');
 
+    // Font query param HTTP checks
+    const monoRes = await fetch(`${BASE}/600/400?font=mono`);
+    const monoBody = await monoRes.text();
+    ok(monoRes.status === 200 && monoBody.includes("'JetBrains Mono'"), 'GET /600/400?font=mono renders monospace font-family');
+    const defaultRes = await fetch(`${BASE}/600/400`);
+    ok(monoRes.headers.get('etag') !== defaultRes.headers.get('etag'), 'GET /600/400?font=mono emits distinct ETag vs default sans');
+
+    const fallbackFontRes = await fetch(`${BASE}/600/400?font=unknown-font`);
+    const fallbackFontBody = await fallbackFontRes.text();
+    ok(fallbackFontRes.status === 200 && fallbackFontBody.includes("'Geist'"), 'Unknown ?font= parameter falls back safely to default sans');
+
     console.log('==> [3/4] Testing Agentic Browsing & Discovery Endpoints...');
     const llmsRes = await fetch(`${BASE}/llms.txt`);
     const llmsText = await llmsRes.text();
@@ -96,6 +108,14 @@ async function runTests() {
 
     const dataUri = PlaceholgerSDK.dataUri('512/1e3a8a/93c5fd?text=Square');
     ok(dataUri.startsWith('data:image/svg+xml;utf8,') && decodeURIComponent(dataUri).includes('width="512" height="512"'), 'Placeholger.dataUri() generates valid data URI');
+
+    const parsedSerif = PlaceholgerSDK.parseSpec('800/600?font=serif');
+    ok(parsedSerif.font === 'serif', 'Placeholger.parseSpec() extracts ?font=serif');
+    const serifSvg = PlaceholgerSDK.svg(parsedSerif);
+    ok(serifSvg.includes('Georgia, Cambria'), 'Placeholger.svg() renders serif font stack');
+    const condensedSvg = PlaceholgerSDK.svg({ w: 600, h: 400, font: 'condensed', text: 'Narrow' });
+    ok(condensedSvg.includes('Arial Narrow'), 'Placeholger.svg() renders condensed font stack');
+    ok(PlaceholgerSDK.sanitizeFont('INVALID') === 'sans', 'Placeholger.sanitizeFont() falls back to sans for unknown values');
 
     console.log('==> [5/5] Testing Self-Host Only Policy & Hotlink Rejection for placeholger.js...');
     ok(!homeHtml.includes('https://placeholger.hellinger.wtf/placeholger.js"'), 'Landing page does not offer remote <script src="https://.../placeholger.js"> loading');

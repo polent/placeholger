@@ -18,7 +18,7 @@
       'srStatus', 'themeSegmentedControl', 'themeBtnLight', 'themeBtnDark', 'themeBtnSystem',
       'configuratorForm', 'inputWidth', 'inputHeight', 'rangeWidth', 'rangeHeight',
       'sliderWidthVal', 'sliderHeightVal', 'pickerBg', 'inputBg', 'pickerFg', 'inputFg',
-      'showDimensionsCheckbox', 'inputText', 'clearTextBtn', 'lockAspectCheckbox',
+      'showDimensionsCheckbox', 'inputText', 'clearTextBtn', 'selectFont', 'lockAspectCheckbox',
       'urlPath', 'externalLinkBtn', 'quickEmbedCode', 'previewHudDim',
       'previewRatioBadge', 'previewSvgHost', 'previewBytesBadge', 'calculatedKB',
       'previewCanvasWrapper'
@@ -112,8 +112,10 @@
     var fg = window.Placeholger ? window.Placeholger.sanitizeHex(e.inputFg ? e.inputFg.value : 'FFFFFF', 'FFFFFF') : 'FFFFFF';
     var rawText = e.inputText ? e.inputText.value.trim() : '';
     var showDims = e.showDimensionsCheckbox ? Boolean(e.showDimensionsCheckbox.checked) : false;
+    var fontVal = e.selectFont ? e.selectFont.value : 'sans';
+    var font = window.Placeholger && window.Placeholger.sanitizeFont ? window.Placeholger.sanitizeFont(fontVal) : fontVal;
 
-    return { w: w, h: h, bg: bg, fg: fg, rawText: rawText, text: rawText || 'PLACEHOLGER', showDims: showDims };
+    return { w: w, h: h, bg: bg, fg: fg, rawText: rawText, text: rawText || 'PLACEHOLGER', showDims: showDims, font: font };
   }
 
   function handleDimensionChange(changedAxis) {
@@ -236,6 +238,7 @@
     updateClearBtnVisibility('');
     e.showDimensionsCheckbox.checked = false;
     e.lockAspectCheckbox.checked = false;
+    if (e.selectFont) e.selectFont.value = 'sans';
     isAspectLocked = false;
     currentAspectRatio = 1.5;
 
@@ -245,12 +248,11 @@
 
   function buildPathQuery(s) {
     var path = s.w + '/' + s.h + '/' + s.bg.toLowerCase() + '/' + s.fg.toLowerCase();
-    if (!s.rawText && !s.showDims) return path;
-    var query = s.rawText ? 'text=' + encodeURIComponent(s.rawText) : '';
-    if (s.showDims) {
-      query += (query ? '&' : '') + 'dims=1';
-    }
-    return path + '?' + query;
+    var queryParts = [];
+    if (s.rawText) queryParts.push('text=' + encodeURIComponent(s.rawText));
+    if (s.font && s.font !== 'sans') queryParts.push('font=' + encodeURIComponent(s.font));
+    if (s.showDims) queryParts.push('dims=1');
+    return queryParts.length > 0 ? path + '?' + queryParts.join('&') : path;
   }
 
   function byteLength(str) {
@@ -342,6 +344,7 @@
     } else if (format === 'webcomponent') {
       snippet = '<place-holger w="' + s.w + '" h="' + s.h + '" bg="' + s.bg.toLowerCase() + '" fg="' + s.fg.toLowerCase() + '"' +
         (s.rawText ? ' text="' + s.rawText.replace(/"/g, '&quot;') + '"' : '') +
+        (s.font && s.font !== 'sans' ? ' font="' + s.font + '"' : '') +
         (s.showDims ? ' dims' : '') + '></place-holger>';
     }
 
@@ -404,6 +407,11 @@
     if (typeof opts.dims === 'boolean') {
       e.showDimensionsCheckbox.checked = opts.dims;
     }
+    if (typeof opts.font === 'string' && e.selectFont) {
+      e.selectFont.value = window.Placeholger && window.Placeholger.sanitizeFont
+        ? window.Placeholger.sanitizeFont(opts.font)
+        : opts.font;
+    }
 
     var s = getState();
     var svgMarkup = updateUI(s, false);
@@ -412,7 +420,7 @@
       url: BASE_URL + '/' + path,
       relativeUrl: '/' + path,
       htmlTag: '<img src="' + BASE_URL + '/' + path + '" width="' + s.w + '" height="' + s.h + '" alt="' + s.text + '" />',
-      webComponentTag: '<place-holger w="' + s.w + '" h="' + s.h + '" bg="' + s.bg.toLowerCase() + '" fg="' + s.fg.toLowerCase() + '" text="' + s.text + '"></place-holger>',
+      webComponentTag: '<place-holger w="' + s.w + '" h="' + s.h + '" bg="' + s.bg.toLowerCase() + '" fg="' + s.fg.toLowerCase() + '" text="' + s.text + '"' + (s.font && s.font !== 'sans' ? ' font="' + s.font + '"' : '') + '></place-holger>',
       svg: svgMarkup
     };
   }
@@ -436,6 +444,7 @@
             bg: { type: 'string', description: 'Hex background color without #', pattern: '^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$', default: '9E9EA0' },
             fg: { type: 'string', description: 'Hex foreground color without #', pattern: '^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$', default: 'FFFFFF' },
             text: { type: 'string', description: 'Centered text label', maxLength: 64, default: 'PLACEHOLGER' },
+            font: { type: 'string', description: 'Font family preset', enum: ['sans', 'mono', 'serif', 'rounded', 'condensed'], default: 'sans' },
             dims: { type: 'boolean', description: 'Show dimensions subtitle', default: false }
           }
         },
@@ -495,7 +504,7 @@
 
       e.configuratorForm.addEventListener('change', function (ev) {
         var id = ev.target.id;
-        if (id === 'showDimensionsCheckbox') {
+        if (id === 'showDimensionsCheckbox' || id === 'selectFont') {
           updateUI();
         } else if (id === 'lockAspectCheckbox') {
           toggleLockAspect();
@@ -511,7 +520,7 @@
     var initialState = getState();
     var isDefaultInitial = initialState.w === 600 && initialState.h === 400 &&
       initialState.bg === '9E9EA0' && initialState.fg === 'FFFFFF' &&
-      !initialState.rawText && !initialState.showDims;
+      !initialState.rawText && !initialState.showDims && initialState.font === 'sans';
     updateUI(initialState, isDefaultInitial);
   }
 

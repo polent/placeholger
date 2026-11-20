@@ -64,6 +64,13 @@
             "required": false,
             "schema": { "type": "boolean", "default": false },
             "description": "Append {w} × {h} subtitle below main text"
+          },
+          {
+            "name": "font",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "enum": ["sans", "mono", "serif", "rounded", "condensed"], "default": "sans" },
+            "description": "Font family preset for centered label text"
           }
         ],
         "responses": {
@@ -94,7 +101,8 @@
           { "name": "w", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1, "maximum": 2048 } },
           { "name": "h", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1, "maximum": 2048 } },
           { "name": "text", "in": "query", "required": false, "schema": { "type": "string", "maxLength": 64 } },
-          { "name": "dims", "in": "query", "required": false, "schema": { "type": "boolean" } }
+          { "name": "dims", "in": "query", "required": false, "schema": { "type": "boolean" } },
+          { "name": "font", "in": "query", "required": false, "schema": { "type": "string", "enum": ["sans", "mono", "serif", "rounded", "condensed"], "default": "sans" } }
         ],
         "responses": {
           "200": {
@@ -114,7 +122,8 @@
           { "name": "bg", "in": "query", "required": false, "schema": { "type": "string" } },
           { "name": "fg", "in": "query", "required": false, "schema": { "type": "string" } },
           { "name": "text", "in": "query", "required": false, "schema": { "type": "string", "maxLength": 64 } },
-          { "name": "dims", "in": "query", "required": false, "schema": { "type": "boolean" } }
+          { "name": "dims", "in": "query", "required": false, "schema": { "type": "boolean" } },
+          { "name": "font", "in": "query", "required": false, "schema": { "type": "string", "enum": ["sans", "mono", "serif", "rounded", "condensed"], "default": "sans" } }
         ],
         "responses": {
           "200": {

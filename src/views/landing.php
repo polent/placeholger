@@ -288,6 +288,19 @@
                 <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" data-sample="Wireframe Box" type="button">Wireframe Box</button>
                 <button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface hover:text-primary font-code-md text-xs transition-colors" data-sample="Avatar / Profile" type="button">Avatar / Profile</button>
               </div>
+              <div class="flex flex-col gap-1 pt-1">
+                <label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider" for="selectFont">Font Family (?font=...)</label>
+                <div class="flex items-center bg-surface-container-lowest border border-surface-container-highest/50 rounded px-space-sm py-2 focus-within:ring-1 focus-within:ring-primary">
+                  <span aria-hidden="true" class="font-code-md text-on-surface-variant mr-2">Aa</span>
+                  <select class="w-full bg-surface-container-lowest font-code-md text-code-md text-primary focus:outline-none cursor-pointer border-0" id="selectFont" name="font" toolparamdescription="Font family preset (sans, mono, serif, rounded, condensed)">
+                    <option value="sans">Geist / System Sans (Default)</option>
+                    <option value="mono">JetBrains / Monospace</option>
+                    <option value="serif">Editorial Serif</option>
+                    <option value="rounded">Rounded Sans</option>
+                    <option value="condensed">Condensed Display</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
             <!-- Color Palette Presets -->
@@ -532,6 +545,10 @@ curl -fsSL -o public/js/placeholger.js https://placeholger.hellinger.wtf/placeho
                   <span class="text-on-surface text-right">Center label (max 64 chars). Defaults to <code class="font-code-md">PLACEHOLGER</code>.</span>
                 </div>
                 <div class="py-2 flex items-start justify-between gap-space-sm">
+                  <span class="font-code-md text-code-md text-primary">font</span>
+                  <span class="text-on-surface text-right">Font preset: <code class="font-code-md">sans</code> (default), <code class="font-code-md">mono</code>, <code class="font-code-md">serif</code>, <code class="font-code-md">rounded</code>, or <code class="font-code-md">condensed</code>.</span>
+                </div>
+                <div class="py-2 flex items-start justify-between gap-space-sm">
                   <span class="font-code-md text-code-md text-primary">dims</span>
                   <span class="text-on-surface text-right">Boolean attribute that adds a <code class="font-code-md">w × h</code> subtitle.</span>
                 </div>
@@ -568,7 +585,7 @@ curl -fsSL -o public/js/placeholger.js https://placeholger.hellinger.wtf/placeho
                 <div class="flex flex-col gap-1">
                   <h3 class="font-headline-md text-headline-md text-primary">Dimension &amp; Color Path + Custom Text</h3>
                   <p class="font-body-md text-body-md text-on-surface-variant">
-                    Generates an exact vector SVG wireframe with custom hex background and foreground crosshairs/text. Supports optional <code class="font-code-md text-primary">?text=...</code> and <code class="font-code-md text-primary">?dims=1</code> query parameters.
+                    Generates an exact vector SVG wireframe with custom hex background and foreground crosshairs/text. Supports optional <code class="font-code-md text-primary">?text=...</code>, <code class="font-code-md text-primary">?font=...</code>, and <code class="font-code-md text-primary">?dims=1</code> query parameters.
                   </p>
                 </div>
                 <div class="p-space-sm rounded bg-surface-container-lowest font-code-md text-code-md text-on-surface flex items-center justify-between overflow-x-auto">
@@ -608,6 +625,10 @@ curl -fsSL -o public/js/placeholger.js https://placeholger.hellinger.wtf/placeho
                   <div class="py-2 flex items-start justify-between gap-space-sm">
                     <span class="font-code-md text-code-md text-primary">Custom Text (?text=)</span>
                     <span class="text-on-surface text-right font-code-md">URL-encoded string (XML-sanitized)</span>
+                  </div>
+                  <div class="py-2 flex items-start justify-between gap-space-sm">
+                    <span class="font-code-md text-code-md text-primary">Font Family (?font=)</span>
+                    <span class="text-on-surface text-right font-code-md">sans | mono | serif | rounded | condensed</span>
                   </div>
                   <div class="py-2 flex items-start justify-between gap-space-sm">
                     <span class="font-code-md text-code-md text-primary">Out of Range (&gt; 2048 or &lt;= 0)</span>

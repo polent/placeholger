@@ -6,7 +6,7 @@
 
 Construct any placeholder URL directly without registration or API keys:
 
-- **Full Specification**: `https://placeholger.hellinger.wtf/{width}/{height}/{bg_hex}/{fg_hex}?text={url_encoded_text}&dims={0|1}`
+- **Full Specification**: `https://placeholger.hellinger.wtf/{width}/{height}/{bg_hex}/{fg_hex}?text={url_encoded_text}&font={sans|mono|serif|rounded|condensed}&dims={0|1}`
 - **Default Colors (`#9E9EA0` bg, `#FFFFFF` fg)**: `https://placeholger.hellinger.wtf/600/400`
 - **Square Shortcut (`width = height`)**: `https://placeholger.hellinger.wtf/512`
 - **Custom Colors + Custom Text**: `https://placeholger.hellinger.wtf/1200/630/0f172a/38bdf8?text=Hero+Banner&dims=1`
@@ -18,6 +18,7 @@ Construct any placeholder URL directly without registration or API keys:
 - `bg_hex` (`bg`): 3 or 6 character hexadecimal color WITHOUT leading `#` (default: `9E9EA0`).
 - `fg_hex` (`fg`): 3 or 6 character hexadecimal color WITHOUT leading `#` (default: `FFFFFF`).
 - `text`: Optional query parameter (`?text=...`), up to 64 characters, XML-escaped automatically (default: `PLACEHOLGER`).
+- `font`: Optional query parameter (`?font=...`) selecting a zero-network native font stack: `sans` (default), `mono`, `serif`, `rounded`, or `condensed`. Unknown values fall back to `sans`.
 - `dims` (`sub`): Optional query parameter (`?dims=1` or `?sub=1`) to append a `{width} × {height}` subtitle below the main label.
 
 ## Client-Side On-The-Fly JS SDK (`placeholger.js`)

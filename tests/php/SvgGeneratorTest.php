@@ -81,6 +81,36 @@ assertTrue(substr_count($svg, '<line ') === 4, 'Renders 4 corner-to-center diago
 $xml = @simplexml_load_string($svg);
 assertTrue($xml !== false, 'Generated SVG is strictly well-formed XML');
 
+// 9. Font selection (?font=...) & fallback behavior
+assertTrue($res1['font'] === 'sans', 'Default font is sans');
+$svgDefault = SvgGenerator::renderSvg($res1);
+assertTrue(strpos($svgDefault, "font-family=\"'Geist'") !== false, 'Default font renders Geist stack');
+
+$resMono = SvgGenerator::parseRequest('/600/400', ['font' => 'mono']);
+$svgMono = SvgGenerator::renderSvg($resMono);
+assertTrue($resMono['font'] === 'mono', 'Parses ?font=mono');
+assertTrue(strpos($svgMono, "font-family=\"'JetBrains Mono'") !== false, 'Mono font renders JetBrains Mono stack');
+assertTrue($resMono['etag'] !== $res1['etag'], 'Distinct font produces distinct ETag');
+
+$resSerif = SvgGenerator::parseRequest('/600/400', ['font' => 'SERIF']);
+$svgSerif = SvgGenerator::renderSvg($resSerif);
+assertTrue($resSerif['font'] === 'serif' && strpos($svgSerif, 'Georgia, Cambria') !== false, 'Normalizes uppercase ?font=SERIF and renders serif stack');
+
+$resRounded = SvgGenerator::parseRequest('/600/400', ['font' => 'rounded']);
+$svgRounded = SvgGenerator::renderSvg($resRounded);
+assertTrue($resRounded['font'] === 'rounded' && strpos($svgRounded, 'ui-rounded') !== false, 'Renders rounded font stack');
+
+$resCondensed = SvgGenerator::parseRequest('/600/400', ['font' => 'condensed']);
+$svgCondensed = SvgGenerator::renderSvg($resCondensed);
+assertTrue($resCondensed['font'] === 'condensed' && strpos($svgCondensed, 'Arial Narrow') !== false, 'Renders condensed font stack');
+
+$resInvalidFont = SvgGenerator::parseRequest('/600/400', ['font' => 'comic-sans']);
+assertTrue($resInvalidFont['font'] === 'sans', 'Unknown font falls back safely to sans');
+
+foreach ([$svgDefault, $svgMono, $svgSerif, $svgRounded, $svgCondensed] as $idx => $fontSvg) {
+    assertTrue(@simplexml_load_string($fontSvg) !== false, "Font preset #{$idx} produces strictly well-formed XML");
+}
+
 echo "\n==> PHP Unit Tests Summary: {$passed} passed, {$failed} failed.\n";
 if ($failed > 0) {
     exit(1);

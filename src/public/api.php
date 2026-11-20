@@ -24,6 +24,29 @@ class SvgGenerator
     public const DEFAULT_BG = '9E9EA0';
     public const DEFAULT_FG = 'FFFFFF';
     public const DEFAULT_TEXT = 'PLACEHOLGER';
+    public const DEFAULT_FONT = 'sans';
+    public const FONTS = [
+        'sans' => [
+            'stack' => "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            'widthFactor' => 0.66,
+        ],
+        'mono' => [
+            'stack' => "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+            'widthFactor' => 0.68,
+        ],
+        'serif' => [
+            'stack' => "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif",
+            'widthFactor' => 0.62,
+        ],
+        'rounded' => [
+            'stack' => "ui-rounded, 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Quicksand, sans-serif",
+            'widthFactor' => 0.66,
+        ],
+        'condensed' => [
+            'stack' => "'Arial Narrow', 'Roboto Condensed', 'Helvetica Neue Condensed', Impact, sans-serif",
+            'widthFactor' => 0.56,
+        ],
+    ];
 
     /**
      * Parses request URI path and query parameters into validated SVG options.
@@ -46,6 +69,7 @@ class SvgGenerator
      *   fg: string,
      *   text: string,
      *   showDims: bool,
+     *   font: string,
      *   etag: string
      * }
      */
@@ -118,6 +142,7 @@ class SvgGenerator
                 'fg' => self::DEFAULT_FG,
                 'text' => '400 BAD REQUEST',
                 'showDims' => false,
+                'font' => self::DEFAULT_FONT,
                 'etag' => '"err-400"'
             ];
         }
@@ -135,6 +160,7 @@ class SvgGenerator
                 'fg' => self::DEFAULT_FG,
                 'text' => '400 OUT OF RANGE',
                 'showDims' => false,
+                'font' => self::DEFAULT_FONT,
                 'etag' => '"err-range"'
             ];
         }
@@ -158,7 +184,8 @@ class SvgGenerator
             $showDims = in_array(strtolower($val), ['1', 'true', 'yes', 'on'], true);
         }
 
-        $etagHash = substr(md5("{$w}:{$h}:{$bg}:{$fg}:{$safeText}:" . ($showDims ? '1' : '0')), 0, 16);
+        $font = self::sanitizeFont($query['font'] ?? null);
+        $etagHash = substr(md5("{$w}:{$h}:{$bg}:{$fg}:{$safeText}:" . ($showDims ? '1' : '0') . ":{$font}"), 0, 16);
 
         return [
             'status' => 200,
@@ -168,8 +195,21 @@ class SvgGenerator
             'fg' => $fg,
             'text' => $safeText,
             'showDims' => $showDims,
+            'font' => $font,
             'etag' => '"' . $etagHash . '"'
         ];
+    }
+
+    /**
+     * Validates and normalizes a font preset key.
+     */
+    public static function sanitizeFont(mixed $input): string
+    {
+        if (!is_string($input) || $input === '') {
+            return self::DEFAULT_FONT;
+        }
+        $clean = strtolower(trim($input));
+        return isset(self::FONTS[$clean]) ? $clean : self::DEFAULT_FONT;
     }
 
     /**
@@ -194,7 +234,7 @@ class SvgGenerator
     /**
      * Renders the deterministic zero-disk SVG string matching grafik.png.
      *
-     * @param array{w: int, h: int, bg: string, fg: string, text: string, showDims: bool} $params
+     * @param array{w: int, h: int, bg: string, fg: string, text: string, showDims: bool, font?: string} $params
      */
     public static function renderSvg(array $params): string
     {
@@ -204,6 +244,8 @@ class SvgGenerator
         $fg = '#' . $params['fg'];
         $text = $params['text'];
         $showDims = $params['showDims'];
+        $fontKey = self::sanitizeFont($params['font'] ?? self::DEFAULT_FONT);
+        $fontConfig = self::FONTS[$fontKey];
 
         // Calculate proportional stroke width and responsive font size
         $minDim = min($w, $h);
@@ -213,7 +255,7 @@ class SvgGenerator
         $decodedLen = max(1, mb_strlen(html_entity_decode($text, ENT_XML1 | ENT_QUOTES, 'UTF-8'), 'UTF-8'));
         $maxTextWidth = $w * 0.80;
         $baseFontSize = $minDim * 0.095;
-        $widthBoundFontSize = $maxTextWidth / max(4, $decodedLen * 0.66);
+        $widthBoundFontSize = $maxTextWidth / max(4, $decodedLen * $fontConfig['widthFactor']);
         $fontSize = (int)max(8, min(96, round(min($baseFontSize, $widthBoundFontSize))));
 
         // Calculate diagonal crosshair lines from corners towards center with a clean gap around the text
@@ -254,7 +296,7 @@ class SvgGenerator
     <line x1="0" y1="{$h}" x2="{$xLeft}" y2="{$yBottom}"/>
     <line x1="{$w}" y1="{$h}" x2="{$xRight}" y2="{$yBottom}"/>
   </g>
-  <text aria-hidden="true" x="50%" y="{$textY}" fill="{$fg}" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="{$fontSize}" font-weight="700" letter-spacing="{$letterSpacing}px" text-anchor="middle" dominant-baseline="central">{$text}</text>{$subtitleSvg}
+  <text aria-hidden="true" x="50%" y="{$textY}" fill="{$fg}" font-family="{$fontConfig['stack']}" font-size="{$fontSize}" font-weight="700" letter-spacing="{$letterSpacing}px" text-anchor="middle" dominant-baseline="central">{$text}</text>{$subtitleSvg}
 </svg>
 SVG;
     }
