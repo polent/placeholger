@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "placeholger — Zero-Disk Dynamic SVG Placeholder API",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Generates deterministic, ultra-lightweight SVG wireframe placeholders in memory (<1ms) with custom dimensions (1-2048px), hex colors, and XML-sanitized text overlays.",
     "contact": {
       "url": "https://placeholger.hellinger.wtf"

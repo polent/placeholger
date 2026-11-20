@@ -4,10 +4,12 @@
  */
 import { spawn } from 'node:child_process';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const PlaceholgerSDK = require('../../dist/placeholger.js');
+const pkg = JSON.parse(fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
 
 const PORT = 18089;
 const BASE = `http://127.0.0.1:${PORT}`;
@@ -49,6 +51,12 @@ async function runTests() {
     ok(homeHtml.includes('href="/llms.txt"') && homeHtml.includes('href="/openapi.json"'), 'Landing page links to /llms.txt and /openapi.json');
     ok(!homeHtml.includes('cdn.tailwindcss.com'), 'Landing page uses compiled CSS with zero render-blocking Tailwind CDN script');
     ok(homeHtml.includes('id="selectFont"') && homeHtml.includes('value="mono"'), 'Landing page includes #selectFont preset selector');
+    ok(homeHtml.includes(`>v${pkg.version}<`), `Landing page displays active version badge v${pkg.version}`);
+    ok(
+      homeHtml.includes(`src="/placeholger.js?v=${pkg.version}"`) &&
+      homeHtml.includes(`src="/assets/app.js?v=${pkg.version}"`),
+      `Landing page includes cachebusted script assets (?v=${pkg.version})`
+    );
 
     console.log('==> [2/4] Testing SVG Endpoints, Caching, ETag & Strict Non-Indexing Headers...');
     const svgRes = await fetch(`${BASE}/600/400/0f172a/38bdf8?text=Agent+Test&dims=1`);
@@ -117,13 +125,14 @@ async function runTests() {
 
     const oaRes = await fetch(`${BASE}/openapi.json`);
     const oaJson = await oaRes.json();
-    ok(oaRes.status === 200 && oaJson.openapi === '3.1.0', 'GET /openapi.json returns valid OpenAPI 3.1.0 JSON');
+    ok(oaRes.status === 200 && oaJson.openapi === '3.1.0' && oaJson.info?.version === pkg.version, `GET /openapi.json returns valid OpenAPI 3.1.0 JSON matching version ${pkg.version}`);
 
     const robotsTxtRes = await fetch(`${BASE}/robots.txt`);
     const robotsTxt = await robotsTxtRes.text();
     ok(robotsTxtRes.status === 200 && robotsTxt.includes('Disallow: /api.php'), 'GET /robots.txt protects crawl budget from dynamic image paths');
 
     console.log('==> [4/4] Testing Client-Side On-The-Fly JS SDK (placeholger.js)...');
+    ok(PlaceholgerSDK.version === pkg.version, `PlaceholgerSDK.version matches release ${pkg.version}`);
     const parsed = PlaceholgerSDK.parseSpec('800/600/18181b/22c55e?text=Client+SDK&dims=1');
     ok(parsed.w === 800 && parsed.h === 600 && parsed.bg === '18181B' && parsed.showDims === true, 'Placeholger.parseSpec() parses shorthand specs accurately');
 
@@ -155,10 +164,15 @@ async function runTests() {
     });
     ok(crossSiteRes.status === 403, 'GET /placeholger.js with Sec-Fetch-Site: cross-site is rejected with 403 Forbidden');
 
-    const sameOriginRes = await fetch(`${BASE}/placeholger.js`, {
+    const cachebustedCrossSiteRes = await fetch(`${BASE}/placeholger.js?v=${pkg.version}`, {
+      headers: { 'Sec-Fetch-Site': 'cross-site' }
+    });
+    ok(cachebustedCrossSiteRes.status === 403, `GET /placeholger.js?v=${pkg.version} with Sec-Fetch-Site: cross-site is rejected with 403 Forbidden`);
+
+    const sameOriginRes = await fetch(`${BASE}/placeholger.js?v=${pkg.version}`, {
       headers: { Referer: `${BASE}/`, 'Sec-Fetch-Site': 'same-origin' }
     });
-    ok(sameOriginRes.status === 200, 'GET /placeholger.js with same-origin Referer returns 200 OK');
+    ok(sameOriginRes.status === 200, `GET /placeholger.js?v=${pkg.version} with same-origin Referer returns 200 OK`);
     ok(sameOriginRes.headers.get('cross-origin-resource-policy') === 'same-origin', 'placeholger.js emits Cross-Origin-Resource-Policy: same-origin');
     ok(!sameOriginRes.headers.get('access-control-allow-origin'), 'placeholger.js does not emit wildcard Access-Control-Allow-Origin');
 

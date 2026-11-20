@@ -36,7 +36,7 @@ SFTP_PORT="${SFTP_PORT:-22}"
 SFTP_REMOTE_DIR="${SFTP_REMOTE_DIR:-/}"
 
 echo "==> Running build and test suite before SFTP deployment..."
-npm test
+SKIP_VERSION_BUMP=1 npm test
 
 echo "==> Mirroring ./dist/ to sftp://${SFTP_USER}@${SFTP_HOST}:${SFTP_PORT}${SFTP_REMOTE_DIR}..."
 

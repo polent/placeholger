@@ -82,7 +82,7 @@
   if ($inlineCss !== ''): ?>
   <style><?= $inlineCss ?></style>
   <?php else: ?>
-  <link rel="stylesheet" href="/assets/app.css" />
+  <link rel="stylesheet" href="/assets/app.css?v=1.1.1" />
   <?php endif; ?>
 </head>
 <body class="bg-background text-on-surface font-body-md antialiased selection:bg-surface-container-highest selection:text-primary min-h-screen flex flex-col justify-between">
@@ -98,7 +98,7 @@
           <span class="font-code-md text-code-md font-medium text-primary tracking-tight group-hover:text-secondary transition-colors truncate">placeholger.hellinger.wtf</span>
         </a>
         <div class="flex items-center gap-space-xs shrink-0">
-          <span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">v1.1</span>
+          <span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">v1.1.1</span>
           <span class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>&lt;1ms
           </span>
@@ -515,7 +515,7 @@
                   <code class="font-code-md text-primary">placeholger.js</code> is a single dependency-free file (~1.8 KB) that runs entirely in the browser. Remote hotlinking is blocked (<code class="font-code-md text-primary">403 Forbidden</code>), so save a local copy into your project's static assets:
                 </p>
               </div>
-              <a class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded bg-primary text-on-primary font-label-md text-label-md font-medium hover:opacity-90 transition-opacity shrink-0" download="placeholger.js" href="/placeholger.js">
+              <a class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded bg-primary text-on-primary font-label-md text-label-md font-medium hover:opacity-90 transition-opacity shrink-0" download="placeholger.js" href="/placeholger.js?v=1.1.1">
                 <span>↓ Download placeholger.js</span>
               </a>
             </div>
@@ -755,7 +755,7 @@ curl -fsSL -o public/js/placeholger.js https://placeholger.hellinger.wtf/placeho
     </div>
   </nav>
 
-  <script defer src="/placeholger.js"></script>
-  <script defer src="/assets/app.js"></script>
+  <script defer src="/placeholger.js?v=1.1.1"></script>
+  <script defer src="/assets/app.js?v=1.1.1"></script>
 </body>
 </html>

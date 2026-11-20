@@ -281,7 +281,7 @@
   }
 
   var PlaceholgerAPI = {
-    version: '1.1.0',
+    version: '1.1.1',
     svg: generateSvg,
     dataUri: generateDataUri,
     parseSpec: parseSpec,
