@@ -75,13 +75,43 @@ class SvgGenerator
      */
     public static function parseRequest(string $requestPath, array $query): array
     {
-        $cleanPath = trim( (string)parse_url($requestPath, PHP_URL_PATH), '/' );
+        if (str_contains($requestPath, "\0")) {
+            return [
+                'status' => 400,
+                'error' => 'Invalid path: null byte not permitted.',
+                'w' => 600,
+                'h' => 400,
+                'bg' => self::DEFAULT_BG,
+                'fg' => self::DEFAULT_FG,
+                'text' => '400 BAD REQUEST',
+                'showDims' => false,
+                'font' => self::DEFAULT_FONT,
+                'etag' => '"err-400"'
+            ];
+        }
+
+        $parsedPath = parse_url($requestPath, PHP_URL_PATH);
+        $cleanPath = is_string($parsedPath) ? trim($parsedPath, '/') : '';
         // Strip leading api.php if called directly
         if ($cleanPath === 'api.php' || $cleanPath === 'index.php') {
             $cleanPath = '';
         }
 
         $segments = $cleanPath !== '' ? explode('/', $cleanPath) : [];
+        if (count($segments) > 4) {
+            return [
+                'status' => 400,
+                'error' => 'Invalid path: too many segments.',
+                'w' => 600,
+                'h' => 400,
+                'bg' => self::DEFAULT_BG,
+                'fg' => self::DEFAULT_FG,
+                'text' => '400 BAD REQUEST',
+                'showDims' => false,
+                'font' => self::DEFAULT_FONT,
+                'etag' => '"err-400"'
+            ];
+        }
 
         // Extract raw width and height from path or query
         $rawW = $query['w'] ?? null;
@@ -91,7 +121,7 @@ class SvgGenerator
 
         if ($rawW === null && count($segments) >= 1) {
             // Support "600x400" shorthand in first segment as well as "/600/400"
-            if (preg_match('/^(\d+)[xX](\d+)$/', $segments[0], $m)) {
+            if (preg_match('/^(\d+)[xX](\d+)\z/', $segments[0], $m)) {
                 $rawW = $m[1];
                 $rawH = $m[2];
                 $rawBg = $rawBg ?? ($segments[1] ?? null);
@@ -106,10 +136,10 @@ class SvgGenerator
                         $rawH = $segments[1];
                         $rawBg = $rawBg ?? ($segments[2] ?? null);
                         $rawFg = $rawFg ?? ($segments[3] ?? null);
-                    } elseif (ctype_digit($segments[1]) && count($segments) === 3 && !preg_match('/^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', $segments[2])) {
+                    } elseif (ctype_digit($segments[1]) && count($segments) === 3 && !preg_match('/^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?\z/', $segments[2])) {
                         $rawH = $segments[1];
                         $rawBg = $rawBg ?? $segments[2];
-                    } elseif (ctype_digit($segments[1]) && (int)$segments[1] <= self::MAX_DIM && (!preg_match('/^[0-9a-fA-F]{6}$/', $segments[1]) || count($segments) === 2 || count($segments) === 4)) {
+                    } elseif (ctype_digit($segments[1]) && (int)$segments[1] <= self::MAX_DIM && (!preg_match('/^[0-9a-fA-F]{6}\z/', $segments[1]) || count($segments) === 2 || count($segments) === 4)) {
                         $rawH = $segments[1];
                         $rawBg = $rawBg ?? ($segments[2] ?? null);
                         $rawFg = $rawFg ?? ($segments[3] ?? null);
@@ -123,16 +153,19 @@ class SvgGenerator
             }
         }
 
-        // Default if neither path nor query specified w/h
+        // Default if neither path nor query specified w/h (keep $rawH un-cast to avoid Array-to-string warnings)
         if ($rawW === null) {
             $rawW = (string)self::DEFAULT_W;
-            $rawH = (string)($rawH ?? self::DEFAULT_H);
+            if ($rawH === null) {
+                $rawH = (string)self::DEFAULT_H;
+            }
         } elseif ($rawH === null) {
             $rawH = $rawW;
         }
 
-        // Validate integer bounds (1 - 2048)
-        if (!is_numeric($rawW) || !is_numeric($rawH) || strpos((string)$rawW, '.') !== false || strpos((string)$rawH, '.') !== false) {
+        // Strictly validate integer inputs (reject arrays, scientific notation, whitespace, signs, floats)
+        $isValidIntInput = static fn(mixed $v): bool => is_int($v) || (is_string($v) && preg_match('/^-?\d+\z/', $v) === 1);
+        if (!$isValidIntInput($rawW) || !$isValidIntInput($rawH)) {
             return [
                 'status' => 400,
                 'error' => 'Invalid dimensions: width and height must be integers between 1 and 2048.',
@@ -167,21 +200,14 @@ class SvgGenerator
 
         $bg = self::sanitizeHex($rawBg, self::DEFAULT_BG);
         $fg = self::sanitizeHex($rawFg, self::DEFAULT_FG);
-
-        $rawText = isset($query['text']) ? trim((string)$query['text']) : '';
-        if ($rawText === '') {
-            $rawText = self::DEFAULT_TEXT;
-        } else {
-            // Cap custom text at 64 chars to keep rendering crisp and prevent abuse
-            $rawText = mb_substr($rawText, 0, 64, 'UTF-8');
-        }
-
-        $safeText = htmlspecialchars($rawText, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+        $safeText = self::sanitizeText($query['text'] ?? null);
 
         $showDims = false;
-        if (isset($query['dims']) || isset($query['sub'])) {
-            $val = (string)($query['dims'] ?? $query['sub']);
-            $showDims = in_array(strtolower($val), ['1', 'true', 'yes', 'on'], true);
+        $rawDims = $query['dims'] ?? $query['sub'] ?? null;
+        if (is_bool($rawDims)) {
+            $showDims = $rawDims;
+        } elseif (is_int($rawDims) || is_string($rawDims)) {
+            $showDims = in_array(strtolower(trim((string)$rawDims)), ['1', 'true', 'yes', 'on'], true);
         }
 
         $font = self::sanitizeFont($query['font'] ?? null);
@@ -198,6 +224,26 @@ class SvgGenerator
             'font' => $font,
             'etag' => '"' . $etagHash . '"'
         ];
+    }
+
+    /**
+     * Scrubs invalid UTF-8 bytes and XML 1.0 control characters, caps at 64 chars, and escapes XML entities.
+     */
+    public static function sanitizeText(mixed $input): string
+    {
+        if (!is_string($input)) {
+            return self::DEFAULT_TEXT;
+        }
+
+        $scrubbed = mb_scrub($input, 'UTF-8');
+        $clean = (string)preg_replace('/[\x00-\x1F\x7F]+/u', ' ', $scrubbed);
+        $clean = trim($clean);
+        if ($clean === '') {
+            return self::DEFAULT_TEXT;
+        }
+
+        $capped = mb_substr($clean, 0, 64, 'UTF-8');
+        return htmlspecialchars($capped, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     /**
@@ -221,11 +267,11 @@ class SvgGenerator
             return $fallback;
         }
         $clean = ltrim(trim($input), '#');
-        if (preg_match('/^[0-9a-fA-F]{3}$/', $clean)) {
+        if (preg_match('/^[0-9a-fA-F]{3}\z/', $clean)) {
             $clean = $clean[0] . $clean[0] . $clean[1] . $clean[1] . $clean[2] . $clean[2];
             return strtoupper($clean);
         }
-        if (preg_match('/^[0-9a-fA-F]{6}$/', $clean)) {
+        if (preg_match('/^[0-9a-fA-F]{6}\z/', $clean)) {
             return strtoupper($clean);
         }
         return $fallback;
@@ -234,16 +280,34 @@ class SvgGenerator
     /**
      * Renders the deterministic zero-disk SVG string matching grafik.png.
      *
-     * @param array{w: int, h: int, bg: string, fg: string, text: string, showDims: bool, font?: string} $params
+     * @param array{w?: mixed, h?: mixed, bg?: mixed, fg?: mixed, text?: mixed, showDims?: mixed, font?: mixed} $params
      */
     public static function renderSvg(array $params): string
     {
-        $w = $params['w'];
-        $h = $params['h'];
-        $bg = '#' . $params['bg'];
-        $fg = '#' . $params['fg'];
-        $text = $params['text'];
-        $showDims = $params['showDims'];
+        $rawW = $params['w'] ?? self::DEFAULT_W;
+        $rawH = $params['h'] ?? self::DEFAULT_H;
+        $w = (is_int($rawW) || (is_string($rawW) && preg_match('/^\d+\z/', $rawW) === 1))
+            ? max(self::MIN_DIM, min(self::MAX_DIM, (int)$rawW))
+            : self::DEFAULT_W;
+        $h = (is_int($rawH) || (is_string($rawH) && preg_match('/^\d+\z/', $rawH) === 1))
+            ? max(self::MIN_DIM, min(self::MAX_DIM, (int)$rawH))
+            : self::DEFAULT_H;
+        $bg = '#' . self::sanitizeHex($params['bg'] ?? null, self::DEFAULT_BG);
+        $fg = '#' . self::sanitizeHex($params['fg'] ?? null, self::DEFAULT_FG);
+
+        $rawText = $params['text'] ?? null;
+        if (
+            !is_string($rawText) ||
+            trim($rawText) === '' ||
+            !mb_check_encoding($rawText, 'UTF-8') ||
+            preg_match('/[<>"\'\x00-\x1F\x7F]|&(?!(?:amp|lt|gt|quot|apos);)/u', $rawText) === 1
+        ) {
+            $text = self::sanitizeText($rawText);
+        } else {
+            $text = $rawText;
+        }
+
+        $showDims = !empty($params['showDims']);
         $fontKey = self::sanitizeFont($params['font'] ?? self::DEFAULT_FONT);
         $fontConfig = self::FONTS[$fontKey];
 
@@ -304,7 +368,8 @@ SVG;
 
 // Execute directly when invoked as an HTTP endpoint (and not included by unit tests)
 if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__ || defined('PLACEHOLGER_EXECUTE_API')) {
-    $reqUri = $_SERVER['REQUEST_URI'] ?? '/';
+    $reqUri = is_string($_SERVER['REQUEST_URI'] ?? null) ? $_SERVER['REQUEST_URI'] : '/';
+    $reqMethod = is_string($_SERVER['REQUEST_METHOD'] ?? null) ? strtoupper($_SERVER['REQUEST_METHOD']) : 'GET';
     $params = SvgGenerator::parseRequest($reqUri, $_GET);
 
     // Common security, CORS, and strict non-indexing headers for all generated images
@@ -316,7 +381,7 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__ || defined('PLACEHO
     header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'");
     header('X-Content-Type-Options: nosniff');
 
-    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
+    if ($reqMethod === 'OPTIONS') {
         http_response_code(204);
         exit;
     }
@@ -329,7 +394,8 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__ || defined('PLACEHO
     }
 
     // ETag conditional request handling (304 Not Modified)
-    $ifNoneMatch = trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
+    $rawIfNoneMatch = $_SERVER['HTTP_IF_NONE_MATCH'] ?? '';
+    $ifNoneMatch = is_string($rawIfNoneMatch) ? trim($rawIfNoneMatch) : '';
     header('ETag: ' . $params['etag']);
     header('Cache-Control: public, max-age=31536000, s-maxage=31536000, immutable');
 
@@ -339,7 +405,7 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__ || defined('PLACEHO
     }
 
     http_response_code(200);
-    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') {
+    if ($reqMethod === 'HEAD') {
         exit;
     }
 

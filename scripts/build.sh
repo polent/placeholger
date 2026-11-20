@@ -42,9 +42,11 @@ fs.writeFileSync("./src/public/assets/app.css", minified + "\n");
 console.log("  ✓ Minified CSS written (" + Buffer.byteLength(minified) + " bytes)");
 '
 
-echo "==> [4/4] Validating PHP syntax in dist/..."
+echo "==> [4/4] Validating PHP syntax & running security tests..."
 php -l dist/index.php
 php -l dist/api.php
 php -l dist/views/landing.php
+php tests/php/SvgGeneratorTest.php
+php tests/php/SecurityTest.php
 
 echo "✅ Build complete! Payload ready in ./dist/"

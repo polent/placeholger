@@ -7,7 +7,8 @@
     "dev": "npm run build && php -S 127.0.0.1:8080 -t src/public src/public/index.php",
     "start": "npm run build && php -S 127.0.0.1:8080 -t dist dist/index.php",
     "build": "bash scripts/build.sh",
-    "test:php": "php tests/php/SvgGeneratorTest.php",
+    "test:php": "php tests/php/SvgGeneratorTest.php && php tests/php/SecurityTest.php",
+    "test:security": "php tests/php/SecurityTest.php",
     "test:e2e": "node tests/e2e/studio.test.mjs",
     "test": "npm run build && npm run test:php && npm run test:e2e",
     "deploy": "bash scripts/deploy-sftp.sh"

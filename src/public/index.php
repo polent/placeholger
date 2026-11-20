@@ -11,8 +11,10 @@ declare(strict_types=1);
  *   to the zero-disk SVG engine (`api.php`) with strict `X-Robots-Tag: noindex, noimageindex` headers.
  */
 
-$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
-$path = (string)parse_url($requestUri, PHP_URL_PATH);
+$rawRequestUri = $_SERVER['REQUEST_URI'] ?? '/';
+$requestUri = is_string($rawRequestUri) ? str_replace("\0", '', $rawRequestUri) : '/';
+$parsedPath = parse_url($requestUri, PHP_URL_PATH);
+$path = is_string($parsedPath) ? str_replace("\0", '', $parsedPath) : '/';
 
 /**
  * Rejects cross-site / remote Referer hotlinking of placeholger.js.
@@ -20,7 +22,8 @@ $path = (string)parse_url($requestUri, PHP_URL_PATH);
  */
 function enforceSelfHostPolicyForSdk(): void
 {
-    $secFetchSite = strtolower(trim((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')));
+    $rawSecFetchSite = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
+    $secFetchSite = is_string($rawSecFetchSite) ? strtolower(trim($rawSecFetchSite)) : '';
     if ($secFetchSite === 'cross-site') {
         http_response_code(403);
         header('Content-Type: text/plain; charset=utf-8');
@@ -29,10 +32,12 @@ function enforceSelfHostPolicyForSdk(): void
         exit;
     }
 
-    $referer = trim((string)($_SERVER['HTTP_REFERER'] ?? ''));
+    $rawReferer = $_SERVER['HTTP_REFERER'] ?? '';
+    $referer = is_string($rawReferer) ? trim($rawReferer) : '';
     if ($referer !== '') {
         $refHost = strtolower((string)parse_url($referer, PHP_URL_HOST));
-        $reqHost = strtolower((string)explode(':', (string)($_SERVER['HTTP_HOST'] ?? ''))[0]);
+        $rawHost = $_SERVER['HTTP_HOST'] ?? '';
+        $reqHost = is_string($rawHost) ? strtolower((string)explode(':', $rawHost)[0]) : '';
         $allowedHosts = array_filter(['placeholger.hellinger.wtf', 'www.placeholger.hellinger.wtf', 'localhost', '127.0.0.1', $reqHost]);
 
         if ($refHost === '' || !in_array($refHost, $allowedHosts, true)) {
@@ -47,8 +52,18 @@ function enforceSelfHostPolicyForSdk(): void
 
 // Support PHP built-in server (`php -S`) serving static assets directly
 if (PHP_SAPI === 'cli-server') {
-    $staticFile = __DIR__ . $path;
-    if ($path !== '/' && $path !== '/index.php' && $path !== '/api.php' && is_file($staticFile)) {
+    $realPublicDir = realpath(__DIR__);
+    $candidatePath = __DIR__ . '/' . ltrim($path, '/');
+    $staticFile = ($realPublicDir !== false && !str_contains($path, "\0")) ? realpath($candidatePath) : false;
+    if (
+        $path !== '/' &&
+        $path !== '/index.php' &&
+        $path !== '/api.php' &&
+        $realPublicDir !== false &&
+        $staticFile !== false &&
+        str_starts_with($staticFile, $realPublicDir . DIRECTORY_SEPARATOR) &&
+        is_file($staticFile)
+    ) {
         if ($path === '/placeholger.js') {
             enforceSelfHostPolicyForSdk();
         }

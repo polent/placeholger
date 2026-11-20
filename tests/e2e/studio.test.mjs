@@ -86,6 +86,30 @@ async function runTests() {
     const fallbackFontBody = await fallbackFontRes.text();
     ok(fallbackFontRes.status === 200 && fallbackFontBody.includes("'Geist'"), 'Unknown ?font= parameter falls back safely to default sans');
 
+    // HTTP-level security checks (array injection, scientific notation, control bytes)
+    const arrayParamRes = await fetch(`${BASE}/600/400?text[]=evil&dims[]=1&font[]=mono`);
+    const arrayParamBody = await arrayParamRes.text();
+    ok(
+      arrayParamRes.status === 200 &&
+      !arrayParamBody.includes('Warning') &&
+      !arrayParamBody.includes('Array') &&
+      arrayParamBody.includes('>PLACEHOLGER</text>'),
+      'Array query params (?text[]&dims[]&font[]) emit zero PHP warnings and fall back safely'
+    );
+
+    const arrayWRes = await fetch(`${BASE}/?w[]=600`);
+    ok(arrayWRes.status === 400, 'Array width parameter (/?w[]=600) returns HTTP 400 Bad Request');
+
+    const sciRes = await fetch(`${BASE}/1e2/400`);
+    ok(sciRes.status === 400, 'Scientific notation dimension (/1e2/400) returns HTTP 400 Bad Request');
+
+    const ctrlRes = await fetch(`${BASE}/600/400?text=Hello%00%07World`);
+    const ctrlBody = await ctrlRes.text();
+    ok(
+      ctrlRes.status === 200 && !ctrlBody.includes('\u0000') && !ctrlBody.includes('\u0007') && ctrlBody.includes('Hello World'),
+      'Control characters (%00, %07) are scrubbed cleanly from SVG output'
+    );
+
     console.log('==> [3/4] Testing Agentic Browsing & Discovery Endpoints...');
     const llmsRes = await fetch(`${BASE}/llms.txt`);
     const llmsText = await llmsRes.text();
